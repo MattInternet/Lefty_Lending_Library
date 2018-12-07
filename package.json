@@ -2,6 +2,7 @@
   "name": "lefty-lending-library",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://mattinternet.github.io/",
   "dependencies": {
     "@material-ui/core": "^3.6.1",
     "@material-ui/icons": "^3.0.1",
@@ -24,13 +25,16 @@
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
-    "eject": "react-scripts-ts eject"
+    "eject": "react-scripts-ts eject",
+    "predeploy": "yarn run build",
+    "deploy": "gh-pages -b master -d build"
   },
   "devDependencies": {
     "@types/jest": "^23.3.10",
     "@types/node": "^10.12.12",
     "@types/react": "^16.7.13",
     "@types/react-dom": "^16.0.11",
+    "gh-pages": "^2.0.1",
     "typescript": "^3.2.1"
   }
 }
