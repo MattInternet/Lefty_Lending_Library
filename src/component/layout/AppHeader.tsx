@@ -32,7 +32,7 @@ class AppHeader extends React.Component<IHeaderProps, any>{
                 <DrawerMenu
                     open={this.state.open}
                     onClose={this.toggleDrawer(false)}
-                    title={"TEST Drawer"}>
+                    title={"Lefty Lending Library"}>
                     <Link to="/about">
                         About
                     </Link>
