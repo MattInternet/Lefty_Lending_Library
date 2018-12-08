@@ -10,6 +10,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import { Link } from 'react-router-dom';
 import { styles } from './styles';
 
+import { UserMenu } from 'component/user'
+
 export interface IHeaderProps {
     title?: string
     classes?: any;
@@ -42,6 +44,7 @@ class AppHeader extends React.Component<IHeaderProps, any>{
                         <MenuIcon/>
                     </IconButton>
                     {this.props.title}
+                    <UserMenu />
                 </Toolbar>
             </AppBar>
         )

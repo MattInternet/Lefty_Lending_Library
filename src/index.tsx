@@ -5,14 +5,18 @@ import App from './component/app/';
 import './index.css';
 import registerServiceWorker from './registerServiceWorker';
 
+import * as stores from 'stores';
 import createBrowserHistory from 'history/createBrowserHistory';
+import { Provider } from 'mobx-react';
 
 const browserHistory = createBrowserHistory();
 
 ReactDOM.render(
-  <Router history={browserHistory}>
-    <App />
-  </Router>,
+  <Provider {...stores}>
+    <Router history={browserHistory}>
+      <App />
+    </Router>
+  </Provider>,
   document.getElementById('root') as HTMLElement
 );
 registerServiceWorker();
