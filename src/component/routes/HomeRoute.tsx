@@ -6,7 +6,7 @@ class HomeRoute extends React.Component<any, any> {
 
         return(
             <div>
-                HEYO dsafkljkldsf!
+                Heyo, home screen ;P
             </div>
         )
     }

@@ -10,6 +10,8 @@ import { AppHeader, Main } from 'component/layout';
 
 import {HomeRoute, AboutRoute}  from 'component/routes'
 
+import {SignInDialog} from 'component/user'
+
 @inject('authStore')
 @observer
 class App extends React.Component<any,any> {
@@ -24,6 +26,7 @@ class App extends React.Component<any,any> {
                         <Route path='/' exact={true} component={HomeRoute} />
                         <Route path='/about' exact={true} component={AboutRoute} />
                     </Switch>
+                    <SignInDialog />
                 </Main>
         </React.Fragment>
 
