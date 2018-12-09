@@ -33,18 +33,18 @@ class AppHeader extends React.Component<IHeaderProps, any>{
         const {
             classes
         } = this.props;
-        
+
         return (
             <AppBar position="fixed">
                 <DrawerMenu
                     open={this.state.open}
                     onClose={this.toggleDrawer(false)}
                     title={"Lefty Lending Library"}>
-                    <Link to="/">
+                    <Link to="/" onClick={this.toggleDrawer(false)}>
                         Home
                     </Link>
                     <Divider/>
-                    <Link to="/about">
+                    <Link to="/about" onClick={this.toggleDrawer(false)}>
                         About
                     </Link>
                 </DrawerMenu>
