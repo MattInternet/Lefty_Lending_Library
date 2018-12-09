@@ -15,7 +15,6 @@ import {SignInDialog} from 'component/user'
 @inject('authStore')
 @observer
 class App extends React.Component<any,any> {
-
   render() {
     return (
         <React.Fragment>

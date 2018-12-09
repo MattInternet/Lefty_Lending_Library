@@ -52,6 +52,7 @@ export class AuthStore {
         this.uiConfig = {
             signInFlow: 'popup',
             signInOptions: [
+                firebase.auth.EmailAuthProvider.PROVIDER_ID,
                 firebase.auth.GoogleAuthProvider.PROVIDER_ID
             ],
             callbacks: {
@@ -101,7 +102,7 @@ export class AuthStore {
 
     //#region Private
 
-    private onAuthChanged = async (user: any) => {
+    private onAuthChanged = async (user: firebase.User) => {
         console.log('Authentication changed', user);
 
         this.setUserProfile(user);

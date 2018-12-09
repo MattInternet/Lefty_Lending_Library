@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { withStyles } from '@material-ui/core';
+import { withStyles, Divider } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import DrawerMenu from '../controls/DrawerMenu';
@@ -29,17 +29,26 @@ class AppHeader extends React.Component<IHeaderProps, any>{
     };
 
     public render() {
+
+        const {
+            classes
+        } = this.props;
+        
         return (
             <AppBar position="fixed">
                 <DrawerMenu
                     open={this.state.open}
                     onClose={this.toggleDrawer(false)}
                     title={"Lefty Lending Library"}>
+                    <Link to="/">
+                        Home
+                    </Link>
+                    <Divider/>
                     <Link to="/about">
                         About
                     </Link>
                 </DrawerMenu>
-                <Toolbar>
+                <Toolbar className={classes.toolbar}>
                     <IconButton onClick={this.toggleDrawer(true)}>
                         <MenuIcon/>
                     </IconButton>

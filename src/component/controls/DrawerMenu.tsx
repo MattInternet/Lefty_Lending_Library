@@ -20,7 +20,7 @@ const styles: any = (theme: any) => ({
         minHeight: theme.mixins.toolbar.minHeight,
         color: theme.palette.text.primary,
         [theme.breakpoints.up("sm")]: {
-            minHeight: theme.spacing.unit,
+            minHeight: 64
         },
         [theme.breakpoints.down("xs")]: {
             padding: '0 16px',
