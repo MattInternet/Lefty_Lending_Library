@@ -1,10 +1,9 @@
 import * as React from 'react';
 
 
-class HomeRoute extends React.Component<any, any> {
+class Home extends React.Component<any, any> {
     public render() {
         console.log('props',this.props);
-
         return(
             <div>
                 Heyo, home screen ;P
@@ -13,4 +12,4 @@ class HomeRoute extends React.Component<any, any> {
     }
 }
 
-export default HomeRoute;
+export default Home;

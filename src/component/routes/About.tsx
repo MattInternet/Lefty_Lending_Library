@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-class AboutRoute extends React.Component<any, any> {
+class About extends React.Component<any, any> {
     public render() {
         return(
             <div>
@@ -10,4 +10,4 @@ class AboutRoute extends React.Component<any, any> {
     }
 }
 
-export default AboutRoute;
+export default About;

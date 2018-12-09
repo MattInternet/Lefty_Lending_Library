@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { observer, inject } from 'mobx-react';
 import { Typography, Button } from '@material-ui/core';
+import { withStyles } from '@material-ui/core';
 
 export interface IUserMenuProps {
     authStore?: any;
@@ -13,15 +14,21 @@ interface IUserMenuState {
     menuOpen: boolean;
 }
 
+const styles: any = (theme: any) => ({
+    userMenu: {
+        marginLeft: 'auto'
+    }
+});
+
 @inject('authStore')
 @observer
-class UserMenu extends React.Component<any, IUserMenuState> {
+class UserMenu extends React.Component<IUserMenuProps, IUserMenuState> {
     state = {
         menuOpen: false,
     };
 
     public render() {
-        const { authStore, className } = this.props;
+        const { authStore, className, classes } = this.props;
         const { authenticated, login, initializing, logout } = authStore;
 
         if (initializing) {
@@ -30,13 +37,13 @@ class UserMenu extends React.Component<any, IUserMenuState> {
 
         if (!authenticated) {
             return (
-                <Button onClick={login} className={className} color="inherit">
+                <Button onClick={login} className={className || classes.userMenu} color="inherit">
                     Sign in
                 </Button>
             )
         }
         return(
-            <Button onClick={logout} className={className} color="inherit">
+            <Button onClick={logout} className={className || classes.userMenu} color="inherit">
                     Sign Out
             </Button>
         )
@@ -57,4 +64,4 @@ class UserMenu extends React.Component<any, IUserMenuState> {
     // }
 }
 
-export default UserMenu;
+export default withStyles(styles)(UserMenu);

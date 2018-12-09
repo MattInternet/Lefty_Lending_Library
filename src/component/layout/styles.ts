@@ -17,6 +17,6 @@ export const styles: any = (theme: any) => ({
         minHeight: theme.mixins.toolbar.minHeight,
         [theme.breakpoints.up("sm")]: {
             minHeight: 64
-        }
+        },
     }
 });

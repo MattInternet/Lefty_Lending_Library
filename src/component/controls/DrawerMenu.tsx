@@ -62,7 +62,6 @@ class DrawerMenu extends React.Component<IDrawerNavProps, {}>{
             title,
             children,
             anchor,
-            headerClassName,
             contentStyle,
         } = this.props;
 
@@ -73,7 +72,7 @@ class DrawerMenu extends React.Component<IDrawerNavProps, {}>{
                 className={classes.root}
                 anchor={anchor || 'left'}
             >
-                <div className={headerClassName || classes.drawerHeader}>
+                <div className={classes.drawerHeader}>
                     {
                         title
                             ?
