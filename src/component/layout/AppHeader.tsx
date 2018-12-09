@@ -1,13 +1,12 @@
 import * as React from 'react';
 
-import { withStyles, Divider } from '@material-ui/core';
+import { withStyles } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import DrawerMenu from '../controls/DrawerMenu';
+import { DrawerMenu, DrawerMenuNavItem } from 'component/controls';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 
-import { Link } from 'react-router-dom';
 import { styles } from './styles';
 
 import { UserMenu } from 'component/user'
@@ -40,13 +39,11 @@ class AppHeader extends React.Component<IHeaderProps, any>{
                     open={this.state.open}
                     onClose={this.toggleDrawer(false)}
                     title={"Lefty Lending Library"}>
-                    <Link to="/" onClick={this.toggleDrawer(false)}>
-                        Home
-                    </Link>
-                    <Divider/>
-                    <Link to="/about" onClick={this.toggleDrawer(false)}>
-                        About
-                    </Link>
+                    <div className={classes.navItemList}>
+                        <DrawerMenuNavItem destination="/" title={'Home'} onClick={this.toggleDrawer(false)}/>
+                        
+                        <DrawerMenuNavItem destination="/about" title={'About'} onClick={this.toggleDrawer(false)}/>
+                    </div>
                 </DrawerMenu>
                 <Toolbar className={classes.toolbar}>
                     <IconButton onClick={this.toggleDrawer(true)}>

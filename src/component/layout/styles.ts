@@ -18,5 +18,9 @@ export const styles: any = (theme: any) => ({
         [theme.breakpoints.up("sm")]: {
             minHeight: 64
         },
+    },
+    navItemList: {
+        display: 'flex',
+        flexDirection: 'column'
     }
 });
