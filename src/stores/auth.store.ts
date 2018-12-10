@@ -2,6 +2,9 @@ import { observable, action, computed } from 'mobx';
 
 import { firebase, auth } from 'libs';
 
+import client from 'data/client';
+import {User} from 'data/models/User'
+
 export class AuthStore {
     /**
      * Gets the auth UI configuration.
@@ -107,8 +110,34 @@ export class AuthStore {
 
         this.setUserProfile(user);
 
-        if (this.initializing) {
+        const isNewUser = user && !await this.profileExists(user.uid);
+
+        if(isNewUser){
+            try{
+                await this.createBackendUser(user);
+            } catch (error) {
+                console.log('onAuthChanged -> createApiUser', error);
+            }
+        }
+
+        if(this.initializing) {
             this.setInitializing(false);
+        }
+    }
+
+    private async createBackendUser(user: firebase.User){
+        let backendUser = User.fromFirebaseUser(user);
+        let newbackendUser = await client.users.createBackendUser(backendUser);
+        console.log('newbackendUser', newbackendUser);
+    }
+
+    private profileExists = async (userId: string) => {
+        try {
+            const existingUser = await client.users.getMe(userId);
+            return existingUser.exists;
+        } catch (error) {
+            
+            return false;
         }
     }
 
