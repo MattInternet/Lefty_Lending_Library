@@ -11,7 +11,8 @@ export const styles: any = (theme: any) => ({
         padding: theme.spacing.unit,
         [theme.breakpoints.up("sm")]: {
             top: 64,
-        }
+        },
+        background: theme.palette.background.default
     },
     toolbar: {
         minHeight: theme.mixins.toolbar.minHeight,

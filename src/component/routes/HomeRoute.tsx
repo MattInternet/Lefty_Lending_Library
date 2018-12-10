@@ -1,15 +1,26 @@
 import * as React from 'react';
 
+import { withStyles } from '@material-ui/core';
+
+const styles: any = (theme: any) => ({
+    homeDiv: {
+        display: 'flex'
+    }
+});
 
 class Home extends React.Component<any, any> {
     public render() {
-        console.log('props',this.props);
+        
+        const {
+            classes
+        } = this.props;
+
         return(
-            <div>
+            <div className={classes.homeDiv}>
                 Heyo, home screen ;P
             </div>
         )
     }
 }
 
-export default Home;
+export default withStyles(styles)(Home);
