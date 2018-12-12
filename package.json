@@ -21,7 +21,8 @@
     "react-helmet": "^5.2.0",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
-    "react-scripts-ts": "3.1.0"
+    "react-scripts-ts": "3.1.0",
+    "typedjson": "^1.2.3"
   },
   "scripts": {
     "start": "react-scripts-ts start",

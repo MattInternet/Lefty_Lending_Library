@@ -1,17 +1,32 @@
-export interface IUser {
-    uid: string,
-    DisplayName: string
+import {jsonObject, jsonMember} from 'typedjson'
+
+export enum UiTheme{
+    "dark",
+    "light"
 }
 
+export interface IUser {
+    uid: string,
+    DisplayName: string,
+    Email: string
+}
+
+@jsonObject
 export class User implements IUser {
+    @jsonMember({ constructor: String })
     uid: string;
+
+    @jsonMember({ constructor: String })
     DisplayName: string;
 
-    public static fromFirebaseUser(firebaseUser: firebase.User): IUser{
+    @jsonMember({ constructor: String })
+    Email: string;
+
+    public static initializeBackendUserFromFirebaseUser(firebaseUser: firebase.User): IUser{
         let user = new User();
         user.uid = firebaseUser.uid;
         user.DisplayName = firebaseUser.displayName ? firebaseUser.displayName : "NA";
-
+        user.Email = firebaseUser.email || "na@notprovided.com";
         return user;
     }
 }

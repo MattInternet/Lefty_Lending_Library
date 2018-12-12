@@ -105,16 +105,24 @@ export class AuthStore {
 
     //#region Private
 
+    //This method needs work, but this works for now! :)
     private onAuthChanged = async (user: firebase.User) => {
         console.log('Authentication changed', user);
+        if(user == null){
+            this.setUserProfile(null);
+            if(this.initializing) {
+                this.setInitializing(false);
+            }
+            return;
+        }
 
-        this.setUserProfile(user);
-
-        const isNewUser = user && !await this.profileExists(user.uid);
-
-        if(isNewUser){
+        this.setUserProfile(user); //TODO: Move down and use User not firebaseUser...
+        
+        let backendUser = await this.getExistingUser(user.uid);
+        
+        if(backendUser == null){ //If they're new...
             try{
-                await this.createBackendUser(user);
+                backendUser = await this.createBackendUser(user);
             } catch (error) {
                 console.log('onAuthChanged -> createApiUser', error);
             }
@@ -125,16 +133,16 @@ export class AuthStore {
         }
     }
 
-    private async createBackendUser(user: firebase.User){
-        let backendUser = User.fromFirebaseUser(user);
-        let newbackendUser = await client.users.createBackendUser(backendUser);
-        console.log('newbackendUser', newbackendUser);
+    private async createBackendUser(user: firebase.User): Promise<User>{
+        let backendUser = User.initializeBackendUserFromFirebaseUser(user);
+        await client.users.createUser(backendUser);
+        return backendUser;
     }
 
-    private profileExists = async (userId: string) => {
+    private getExistingUser = async (userId: string) => {
         try {
             const existingUser = await client.users.getMe(userId);
-            return existingUser.exists;
+            return existingUser;
         } catch (error) {
             
             return false;
