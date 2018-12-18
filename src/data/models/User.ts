@@ -1,17 +1,9 @@
 import {jsonObject, jsonMember} from 'typedjson'
+import { UserLocation } from 'data/enums';
 
 export enum UiTheme{
     "dark",
     "light"
-}
-
-export enum UserLocation{
-    "NA",
-    "South valley",
-    "Central Valley",
-    "North Valley",
-    "Logan",
-    "Park City"
 }
 
 export interface IUser {

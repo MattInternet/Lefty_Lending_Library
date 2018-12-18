@@ -4,19 +4,31 @@ import { inject, observer } from 'mobx-react';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 
 import { auth } from 'libs';
-import { Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Button, MenuItem, Select, FormHelperText } from '@material-ui/core';
-import { UserLocation } from 'data/models/User';
+import {
+    Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions,
+    Button, MenuItem, Select, withStyles, InputLabel, FilledInput, FormControl
+} from '@material-ui/core';
+import { IUserCreationInfo } from 'state';
+import { UserLocation } from 'data/enums';
 
 export interface ILoginDialogProps {
     authStore?: any;
     classes?: any;
 }
 
-export interface IUserCreationInfo {
-    preferredName: string;
-    phone: string;
-    location: UserLocation;
-}
+const styles = theme => ({
+    fieldInput: {
+        margin: theme.spacing.unit,
+        minWidth: 300,
+    },
+    formControl: {
+        margin: theme.spacing.unit,
+        minWidth: 300
+    },
+    userInfoDialog:{
+        maxWidth: 300
+    }
+});
 
 @inject('authStore')
 @observer
@@ -24,34 +36,51 @@ class SignInDialog extends React.Component<ILoginDialogProps, IUserCreationInfo>
 
     state = {
         preferredName: "",
+        //preferredName: this.props.authStore.firebaseUser ? this.props.authStore.firebaseUser.displayName : "", //TODO: Would be cool to popualte it to displayName by default...
         phone: "",
-        location: UserLocation.NA
+        location: UserLocation.NA,
+        nameError: false,
+        locationError: false,
+        phoneError: false
     }
 
-    private handleFormSubmission = () =>{
+    private handleFormSubmission = () => {
+        if(!this.validateForm()){
+            return;
+        }
         this.props.authStore.onFinalizeUserCreation(this.state);
     }
 
-    private handlePreferredNameUpdate = (e: any) =>{
-        this.setState({
-            preferredName: e.target.value
-        })
+    private validateForm = ():boolean => {
+        let valid:boolean = true;
+        if(this.state.preferredName === ""){
+            valid = false;
+            this.setState({
+                nameError: true
+            })
+        }
+        if(this.state.location === UserLocation.NA){
+            valid = false;
+            this.setState({
+                locationError: true
+            })
+        }
+        if(this.state.phone === ""){
+            valid = false;
+            this.setState({
+                phoneError: true
+            })
+        }
+
+        return valid;
     }
 
-    private handlePhoneUpdate = (e: any) =>{
-        this.setState({
-            phone: e.target.value
-        })
-    }
-
-    private handleLocationUpdate = (e: any) =>{
-        this.setState({
-            location: e.target.value
-        })
-    }
+    private handleChange = (field: string) => (event) => {
+        this.setState({ [field]: event.target.value } as Pick<IUserCreationInfo, any>);
+    };
 
     public render() {
-        const {authStore} = this.props;
+        const { classes, authStore } = this.props;
         const {
             uiConfig,
             displayLogin,
@@ -60,41 +89,49 @@ class SignInDialog extends React.Component<ILoginDialogProps, IUserCreationInfo>
             isAuthenticatedWithFirebase
         } = authStore;
 
-        if(!isAuthenticatedWithFirebase){
+        if (!isAuthenticatedWithFirebase) {
             return (
                 <Dialog open={displayLogin} onClose={toggleDisplayLogin}>
                     <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={auth} />
                 </Dialog>
             )
         }
-        else if(!newUser){
+        else if (!newUser) {
             return null;
         }
         return (
-                <Dialog open={newUser}>
-                    <DialogTitle>User Information</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            In order to Lend (or Borrow) content from the LLL we need a bit of information. We'll never spam you! 🌹
-                        </DialogContentText>
-                        <TextField
-                            autoFocus
-                            id="preferred_name"
-                            label="Preferred Name"
-                            type="text"
-                            onChange={this.handlePreferredNameUpdate}
-                            fullWidth/>
-                        <TextField
-                            id="phone"
-                            label="Phone"
-                            type="tel"
-                            onChange={this.handlePhoneUpdate}
-                            fullWidth/>
-                        
+            <Dialog open={newUser}>
+                <DialogTitle>User Information</DialogTitle>
+                <DialogContent className={classes.userInfoDialog}>
+                    <DialogContentText>
+                        In order to Lend (or Borrow) content from the LLL we need a bit of information. We'll never spam you! 🌹
+                    </DialogContentText>
+                    <TextField
+                        error={this.state.nameError}
+                        className={classes.fieldInput}
+                        autoFocus
+                        id="preferred_name_input"
+                        label="Preferred Name"
+                        type="text"
+                        onChange={this.handleChange('preferredName')}
+                        margin="normal"
+                        variant="filled" />
+                    <TextField
+                        error={this.state.phoneError}
+                        className={classes.fieldInput}
+                        id="phone_input"
+                        label="Phone"
+                        type="tel"
+                        onChange={this.handleChange('phone')}
+                        margin="normal"
+                        variant="filled" />
+                    <FormControl variant="filled" className={classes.formControl}>
                         <Select
+                            error={this.state.locationError}
                             value={this.state.location}
-                            id="location"
-                            onChange={this.handleLocationUpdate}
+                            id="location_input"
+                            onChange={this.handleChange('location')}
+                            input={<FilledInput name="Location" id="location-input-label" />}
                             fullWidth>
                             <MenuItem value={UserLocation["North Valley"]}>North Valley</MenuItem>
                             <MenuItem value={UserLocation["Central Valley"]}>Central Valley</MenuItem>
@@ -102,21 +139,17 @@ class SignInDialog extends React.Component<ILoginDialogProps, IUserCreationInfo>
                             <MenuItem value={UserLocation["Logan"]}>Logan</MenuItem>
                             <MenuItem value={UserLocation["Park City"]}>Park City</MenuItem>
                         </Select>
-                        <FormHelperText>Location</FormHelperText>
-                    </DialogContent>
-                    <DialogActions>
-                        {/* TODO: Let them cancel... */}
-                        {/* <Button onClick={this.handleClose} color="primary">
-                        Cancel
-                        </Button> */}
-                        
-                        <Button onClick={this.handleFormSubmission} color="primary">
-                            Join 🤝🏻
+                        <InputLabel htmlFor="location-input-label">Location</InputLabel>
+                    </FormControl>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={this.handleFormSubmission} color="primary">
+                        Join 🤝🏻
                         </Button>
-                    </DialogActions>
-                </Dialog>
-            )
+                </DialogActions>
+            </Dialog>
+        )
     }
 }
 
-export default SignInDialog;
+export default withStyles(styles)(SignInDialog);

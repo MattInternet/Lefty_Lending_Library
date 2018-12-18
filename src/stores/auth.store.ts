@@ -4,7 +4,7 @@ import { firebase, auth } from 'libs';
 
 import client from 'data/client';
 import {User} from 'data/models/User'
-import { IUserCreationInfo } from 'component/user/SignInDialog';
+import { IUserCreationInfo } from 'state';
 
 export class AuthStore {
     /**
