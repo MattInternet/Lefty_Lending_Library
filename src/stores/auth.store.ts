@@ -4,6 +4,7 @@ import { firebase, auth } from 'libs';
 
 import client from 'data/client';
 import {User} from 'data/models/User'
+import { IUserCreationInfo } from 'component/user/SignInDialog';
 
 export class AuthStore {
     /**
@@ -35,7 +36,13 @@ export class AuthStore {
      * Gets the user's profile.
      */
     @observable
-    public userProfile: any;
+    public userProfile: User | null;
+
+    /**
+     * Gets the user's profile.
+     */
+    @observable
+    public firebaseUser: firebase.User | null;
 
     /**
      * Gets whether to display the login.
@@ -44,11 +51,19 @@ export class AuthStore {
     public displayLogin: boolean = false;
 
     /**
-     * Gets whether user is authenticated.
+     * Gets whether the user is logged in or not
      */
     @computed
-    public get authenticated() {
-        return !!this.userProfile;
+    public get isLoggedIn() : boolean{
+        return this.userProfile !== null;
+    }
+
+    /**
+     * Gets whether the user is logged in or not
+     */
+    @computed
+    public get isAuthenticatedWithFirebase() : boolean{
+        return this.firebaseUser !== null;
     }
 
     constructor() {
@@ -99,6 +114,7 @@ export class AuthStore {
      */
     public logout = () => {
         auth.signOut();
+        this.setDisplayLogin(false);
     }
 
     //#endregion
@@ -106,35 +122,43 @@ export class AuthStore {
     //#region Private
 
     //This method needs work, but this works for now! :)
-    private onAuthChanged = async (user: firebase.User) => {
-        console.log('Authentication changed', user);
-        if(user == null){
+    private onAuthChanged = async (firebaseUser: firebase.User) => {
+        this.setFirebaseUser(firebaseUser);
+
+        if(firebaseUser == null){
             this.setUserProfile(null);
             if(this.initializing) {
                 this.setInitializing(false);
             }
             return;
         }
-
-        this.setUserProfile(user); //TODO: Move down and use User not firebaseUser...
         
-        let backendUser = await this.getExistingUser(user.uid);
-        
-        if(backendUser == null){ //If they're new...
-            try{
-                backendUser = await this.createBackendUser(user);
-            } catch (error) {
-                console.log('onAuthChanged -> createApiUser', error);
-            }
-        }
-
-        if(this.initializing) {
+        let backendUser = await this.getExistingUser(firebaseUser.uid);
+        if(backendUser !== null){
+            this.setUserProfile(backendUser);
             this.setInitializing(false);
+            return;
         }
+
+        this.setNewUser(true);
     }
 
-    private async createBackendUser(user: firebase.User): Promise<User>{
-        let backendUser = User.initializeBackendUserFromFirebaseUser(user);
+    public onFinalizeUserCreation = async (userCreationInfo: IUserCreationInfo) => {
+        let backendUser = await this.createBackendUser(userCreationInfo);
+        this.setNewUser(false);
+        this.setUserProfile(backendUser);
+        
+        this.setInitializing(false);
+    }
+
+    private async createBackendUser(userCreationInfo: IUserCreationInfo): Promise<User>{
+        if(this.firebaseUser === null){
+            throw new Error('FirebaseUser required...')
+        }
+        let backendUser = User.initializeBackendUserFromFirebaseUser(this.firebaseUser);
+        backendUser.DisplayName = userCreationInfo.preferredName;
+        backendUser.Phone = userCreationInfo.phone;
+        backendUser.Location = userCreationInfo.location;
         await client.users.createUser(backendUser);
         return backendUser;
     }
@@ -144,8 +168,7 @@ export class AuthStore {
             const existingUser = await client.users.getMe(userId);
             return existingUser;
         } catch (error) {
-            
-            return false;
+            return null;
         }
     }
 
@@ -154,8 +177,14 @@ export class AuthStore {
     //#region Actions
 
     @action
-    private setUserProfile = (userProfile: any) => {
+    private setUserProfile = (userProfile: User | null) => {
+        console.log('setUserProfile', userProfile);
         this.userProfile = userProfile;
+    }
+
+    @action
+    private setFirebaseUser = (firebaseUser: firebase.User | null) => {
+        this.firebaseUser = firebaseUser;
     }
 
     @action
@@ -166,6 +195,12 @@ export class AuthStore {
     @action
     private setInitializing = (initializing: boolean) => {
         this.initializing = initializing;
+    }
+
+    @action
+    private setNewUser = (newUser: boolean) => {
+        console.log('setNewUser', newUser);
+        this.newUser = newUser;
     }
 
     //#endregion

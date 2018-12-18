@@ -29,13 +29,13 @@ class UserMenu extends React.Component<IUserMenuProps, IUserMenuState> {
 
     public render() {
         const { authStore, className, classes } = this.props;
-        const { authenticated, login, initializing, logout } = authStore;
+        const { isLoggedIn, login, initializing, logout } = authStore;
 
         if (initializing) {
             return <Typography>INITIALIZING</Typography>;
         }
 
-        if (!authenticated) {
+        if (!isLoggedIn) {
             return (
                 <Button onClick={login} className={className || classes.userMenu} color="inherit">
                     Sign in

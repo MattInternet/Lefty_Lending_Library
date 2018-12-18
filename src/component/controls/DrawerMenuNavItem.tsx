@@ -34,7 +34,7 @@ class DrawerMenuNavItem extends React.Component<IDrawerMenuItemProps,any>{
         </Link>
 
         return (
-            <Button className={classes.navButton} onClick={onClick} component={link}/>
+            <Button className={classes.navButton} onClick={onClick} component={link}><div></div></Button>
         )
     }
 }
