@@ -8,6 +8,7 @@ export interface IUserMenuProps {
     authStore?: any;
     className?: string;
     classes?: any;
+    routerStore?: any;
 }
 
 const styles: any = (theme: any) => ({
@@ -17,6 +18,7 @@ const styles: any = (theme: any) => ({
 });
 
 @inject('authStore')
+@inject('routerStore')
 @observer
 class UserMenu extends React.Component<IUserMenuProps, any> {
     state = {
@@ -50,7 +52,7 @@ class UserMenu extends React.Component<IUserMenuProps, any> {
                     anchorEl={anchorEl}
                     open={Boolean(anchorEl)}
                     onClose={this.handleClose}>
-                    <MenuItem onClick={this.handleClose}>My account</MenuItem>
+                    <MenuItem onClick={this.handleNavigateToProfile}>Profile</MenuItem>
                     <MenuItem onClick={this.handleLogout}>Logout</MenuItem>
                 </Menu>
             </div>
@@ -69,6 +71,11 @@ class UserMenu extends React.Component<IUserMenuProps, any> {
     private handleLogout = () => {
         this.props.authStore.logout();
         this.handleClose();
+    }
+
+    private handleNavigateToProfile = () => {
+        this.handleClose();
+        this.props.routerStore.history.push('/profile')
     }
 }
 
