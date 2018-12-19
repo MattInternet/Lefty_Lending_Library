@@ -1,1 +1,1 @@
-export * from './IUserLocation';
+export * from './UserLocation';

@@ -110,11 +110,11 @@ class UserInfoDialog extends React.Component<ISignInDialogProps,IUserCreationInf
                         onChange={this.handleChange('location')}
                         input={<FilledInput name="Location" id="location-input-label" />}
                         fullWidth>
-                        <MenuItem value={UserLocation["North Valley"]}>North Valley</MenuItem>
-                        <MenuItem value={UserLocation["Central Valley"]}>Central Valley</MenuItem>
-                        <MenuItem value={UserLocation["South Valley"]}>South Valley</MenuItem>
-                        <MenuItem value={UserLocation["Logan"]}>Logan</MenuItem>
-                        <MenuItem value={UserLocation["Park City"]}>Park City</MenuItem>
+                        <MenuItem value= {UserLocation.North_Valley}>{UserLocation.North_Valley}</MenuItem>
+                        <MenuItem value= {UserLocation.Central_Valley}>{UserLocation.Central_Valley}</MenuItem>
+                        <MenuItem value= {UserLocation.South_Valley}>{UserLocation.South_Valley}</MenuItem>
+                        <MenuItem value= {UserLocation.Logan}>{UserLocation.Logan}</MenuItem>
+                        <MenuItem value= {UserLocation.Park_City}>{UserLocation.Park_City}</MenuItem>
                     </Select>
                     <InputLabel htmlFor="location-input-label">Location</InputLabel>
                 </FormControl>

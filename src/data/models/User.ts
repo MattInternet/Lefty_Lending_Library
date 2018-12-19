@@ -25,6 +25,7 @@ export class User implements IUser {
     @jsonMember({ constructor: String })
     Phone: string;
 
+    @jsonMember({ constructor: String })
     Location: UserLocation;
 
     @jsonMember({ constructor: String })
