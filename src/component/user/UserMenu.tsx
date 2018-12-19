@@ -3,6 +3,7 @@ import * as React from 'react';
 import { observer, inject } from 'mobx-react';
 import { Typography, Button, Menu, MenuItem, IconButton } from '@material-ui/core';
 import { withStyles } from '@material-ui/core';
+import PersonIcon from '@material-ui/icons/Person'
 
 export interface IUserMenuProps {
     authStore?: any;
@@ -45,7 +46,9 @@ class UserMenu extends React.Component<IUserMenuProps, any> {
             <div className={classes.userMenu}>
                 <IconButton aria-owns={anchorEl ? 'simple-menu' : undefined}
                 aria-haspopup="true"
-                onClick={this.handleOpen}>🌹</IconButton>
+                onClick={this.handleOpen}>
+                    <PersonIcon/>
+                </IconButton>
                 
                 <Menu
                     id="simple-menu"
