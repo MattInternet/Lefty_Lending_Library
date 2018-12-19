@@ -168,6 +168,7 @@ export class AuthStore {
             const existingUser = await client.users.getMe(userId);
             return existingUser;
         } catch (error) {
+            console.log('Failed to getExistingUser', error);
             return null;
         }
     }
