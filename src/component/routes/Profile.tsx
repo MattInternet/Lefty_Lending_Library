@@ -4,12 +4,14 @@ import AddIcon from '@material-ui/icons/Add'
 import { inject, observer } from 'mobx-react';
 import { AuthStore } from 'stores';
 import { UserProfilePanel } from 'component';
+import { AddContentDialog } from 'component/content';
 
-const styles:any = theme => ({
+const styles: any = theme => ({
     fab: {
         position: 'absolute',
         bottom: theme.spacing.unit * 2,
-        right: theme.spacing.unit * 2
+        right: theme.spacing.unit * 2,
+        background: theme.palette.primary.main
     },
     content: {
         display: 'flex',
@@ -23,26 +25,47 @@ interface IProfileRouteProps {
     classes?: any;
 }
 
+interface IProfileRouteState {
+    addContentOpen: boolean;
+}
+
 @inject('authStore')
 @observer
-class Profile extends React.Component<IProfileRouteProps, any> {
+class Profile extends React.Component<IProfileRouteProps, IProfileRouteState> {
+
+    state = {
+        addContentOpen: false
+    }
+
     public render() {
         const { classes, authStore } = this.props;
         const {
             //  userProfile
         } = authStore;
 
-        return(
+        return (
             <div className={classes.content}>
-                <UserProfilePanel authStore={authStore}/>
+                <UserProfilePanel authStore={authStore} />
 
+                <AddContentDialog open={this.state.addContentOpen} onClose={this.setAddContentVisibility(false)}/>
 
-                <Fab className={classes.fab}>
-                    <AddIcon/>
-                </Fab>
+                {this.state.addContentOpen ?
+                    null
+                    :
+                    <Fab className={classes.fab} onClick={this.setAddContentVisibility(true)}>
+                        <AddIcon />
+                    </Fab>
+                }
+
             </div>
         )
     }
+
+    setAddContentVisibility = (visible: boolean) => () => {
+        this.setState({
+            addContentOpen: visible
+        });
+    };
 }
 
 export default withStyles(styles)(Profile);

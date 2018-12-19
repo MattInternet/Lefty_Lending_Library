@@ -7,7 +7,7 @@ import { UserLocation } from 'data/enums';
 
 import { ISignInDialogProps, IUserCreationInfo } from 'common';
 
-const styles = theme => ({
+const styles: any = theme => ({
     fieldInput: {
         margin: theme.spacing.unit,
         minWidth: 300,
