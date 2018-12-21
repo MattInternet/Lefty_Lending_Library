@@ -21,7 +21,8 @@ interface IAddContentDialogState {
 
 const styles: any = theme => ({
     ISBNInput: {
-        margin: theme.spacing.unit
+        margin: theme.spacing.unit*3,
+        maxWidth: 300
     },
     chip: {
         marginLeft: theme.spacing.unit
@@ -109,7 +110,7 @@ class AddContentDialog extends React.Component<IAddContentDialogProps, IAddConte
         return (
             <Dialog open={open} onClose={this.handleClose}>
                 <DialogTitle>Does this look right?
-                {!this.state.bookExistsInBackend ?
+                {this.state.bookExistsInBackend ?
                         <Tooltip title="The more the merrier!" aria-label="The more the merrier!" placement="bottom-end">
                             <Chip
                             variant="outlined"
@@ -122,19 +123,6 @@ class AddContentDialog extends React.Component<IAddContentDialogProps, IAddConte
                         null}
                 </DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        {/* {this.state.bookExistsInBackend ?
-                        <Tooltip title="The more the merrier!" aria-label="The more the merrier!" placement="right">
-                            <Chip
-                            variant="outlined"
-                            icon={<CheckCircleIcon />}
-                            label="This Book currently exists in the LLL!"
-                            className={classes.chip}
-                            color="primary"/>
-                        </Tooltip>
-                        :
-                        null} */}
-                    </DialogContentText>
                     <SimpleBookView book={this.state.pendingBook}/>
                 </DialogContent>
                 <DialogActions>
