@@ -13,7 +13,6 @@ import {Home, About, Profile}  from 'component/routes'
 import {SignInDialog} from 'component/user'
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import { pink } from '@material-ui/core/colors';
 
 @inject('authStore')
 @observer
@@ -24,9 +23,11 @@ class App extends React.Component<any,any> {
         palette: {
           type: 'dark',
           primary: {
-              main: '#b71c1c'
+              main: '#AA3939'
           },
-          secondary: pink
+          secondary: {
+              main: '#FFAAAA'
+          }
         },
         typography: { useNextVariants: true }
     });

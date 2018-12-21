@@ -1,32 +1,147 @@
 import * as React from 'react';
 
-import { Dialog, withStyles, Button } from '@material-ui/core';
-import { inject } from 'mobx-react';
+import { Dialog, withStyles, Button, DialogTitle, DialogActions, DialogContent, DialogContentText, TextField, Chip, Tooltip } from '@material-ui/core';
+import { inject, observer } from 'mobx-react';
 import { bookStore } from 'stores';
+import { Book } from 'data/models';
+import { SimpleBookView } from '.';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 
 interface IAddContentDialogProps {
     open: boolean,
-    onClose: any
+    onClose: any,
+    classes: any
+}
+
+interface IAddContentDialogState {
+    pendingBook: Book | null;
+    pendingISBN: string | null;
+    bookExistsInBackend: boolean;
 }
 
 const styles: any = theme => ({
-    
+    ISBNInput: {
+        margin: theme.spacing.unit
+    },
+    chip: {
+        marginLeft: theme.spacing.unit
+    }
 });
 
-@inject('bookStore')
-class AddContentDialog extends React.Component<IAddContentDialogProps, any> {
-    
-    
-    public render(){
-        const { open, onClose } = this.props;
-        const { testFindBook } = bookStore;
+const initialState = {
+    pendingBook: null,
+    pendingISBN: "",
+    bookExistsInBackend: false
+};
 
+@inject('bookStore')
+@observer
+class AddContentDialog extends React.Component<IAddContentDialogProps, IAddContentDialogState> {
+    state = initialState;
+
+    private handleSearchISBN = async() => {
+        if(!this.state.pendingISBN){
+            alert('Please input an ISBN'); //TODO: Make the error display better
+            return;
+        }
+        if(this.state.pendingISBN.length != 13){
+            alert('Only 13 digit ISBNs are supported (FOR THE MOMENT!)'); //TODO: Make the error display better
+            return;
+        }
+        let searchResult = await bookStore.findBookOnlineByISBN(this.state.pendingISBN);
+        if(!searchResult.Book){
+            alert('I couldnt find that book 😱, sry...'); //TODO: Make the error display better
+            return;
+        }
+        this.setState({
+            pendingBook: searchResult.Book,
+            bookExistsInBackend: searchResult.BookExistsInBackend,
+            pendingISBN: ""
+        });
+    }
+
+    private handleChange = (field: string) => (event) => {
+        this.setState({ [field]: event.target.value } as Pick<IAddContentDialogState, any>);
+    };
+
+    private handleClose = () => {
+        this.setState(initialState);
+        this.props.onClose();
+    }
+
+    private handleAddBook = () => {
+        //TODO: Add the book...
+        this.handleClose();
+        alert("🎈🎊💃🏻");
+    }
+
+    public render() {
+        const { classes, open } = this.props;
+        // const { testFindBook } = bookStore;
+
+        //Find the book
+        if(!this.state.pendingBook){
+            return (
+                <Dialog open={open} onClose={this.handleClose}>
+                    <DialogTitle>Search for a Book</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Search for a book by ISBN. ISBNs are 10 or 13 digits and can usually be found near a book's barcode
+                        </DialogContentText>
+                    </DialogContent>
+                    <TextField
+                        className={classes.ISBNInput}
+                        autoFocus
+                        id="isbnInput"
+                        label="ISBN"
+                        type="text"
+                        onChange={this.handleChange('pendingISBN')}
+                        margin="normal"/>
+                    <DialogActions>
+                        <Button variant="contained" color="primary" onClick={this.handleSearchISBN}>
+                            Search
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            )
+        }
+        //Confirm/Add the book
         return (
-            <Dialog open={open} onClose={onClose}>
-                Place to add books n whatnot...
-                <Button onClick={testFindBook}>
-                    TEST
-                </Button>
+            <Dialog open={open} onClose={this.handleClose}>
+                <DialogTitle>Does this look right?
+                {!this.state.bookExistsInBackend ?
+                        <Tooltip title="The more the merrier!" aria-label="The more the merrier!" placement="bottom-end">
+                            <Chip
+                            variant="outlined"
+                            icon={<CheckCircleIcon />}
+                            label="This Book currently exists in the LLL!"
+                            className={classes.chip}
+                            color="secondary"/>
+                        </Tooltip>
+                        :
+                        null}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        {/* {this.state.bookExistsInBackend ?
+                        <Tooltip title="The more the merrier!" aria-label="The more the merrier!" placement="right">
+                            <Chip
+                            variant="outlined"
+                            icon={<CheckCircleIcon />}
+                            label="This Book currently exists in the LLL!"
+                            className={classes.chip}
+                            color="primary"/>
+                        </Tooltip>
+                        :
+                        null} */}
+                    </DialogContentText>
+                    <SimpleBookView book={this.state.pendingBook}/>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" color="primary" onClick={this.handleAddBook}>
+                        Looks good!
+                    </Button>
+                </DialogActions>
             </Dialog>
         )
     }

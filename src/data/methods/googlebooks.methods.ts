@@ -11,9 +11,7 @@ export class GoogleBooksMethods {
         
         if(results.totalItems){
             var rawBook = results.items[0];
-            console.log('Raw Google book result', rawBook);
-            let parsedBook = this.parseGoogleBookIntoBook(rawBook, isbn13);
-            console.log('Parsed book result', parsedBook);
+            return this.parseGoogleBookIntoBook(rawBook, isbn13);
         }
 
         return null;

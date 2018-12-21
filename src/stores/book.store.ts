@@ -1,19 +1,33 @@
 import { client } from "data";
 import { Book } from "data/models";
 
+//TODO: Move this to its own file...
+export class BookSearchResult{
+    Book: Book|null;
+    BookExistsInBackend: boolean;
+}
+
 export class BookStore{
     //#region Public
     public getBook = async (isbn13: string):Promise<Book|null> => {
         return await client.books.getBook(isbn13);
     }
-
-    //Searches online (not from our backend) for a bok by ISBN.
+t
+    //Searches from the backend AND from the 🕸 for a book via isbn13
     //Accept both ISBN10 and ISBN13
-    public findBookOnlineByISBN = async (isbn: string):Promise<Book|null> => {
+    public findBookOnlineByISBN = async (isbn: string):Promise<BookSearchResult> => {
         let isbn13 = this.getIsbn13(isbn);
-        return await client.googlebooks.findBookByISBN13(isbn13);
+        let result = new BookSearchResult();
+        let book = await this.getBook(isbn13);
+        if(book){
+            result.Book = book;
+            result.BookExistsInBackend = true;
+        }
+        result.Book = await client.googlebooks.findBookByISBN13(isbn13);
+        return result;
     }
 
+    //TODO: Kill this...
     public testFindBook = () =>  {
         this.findBookOnlineByISBN("9781451648546");
     }
