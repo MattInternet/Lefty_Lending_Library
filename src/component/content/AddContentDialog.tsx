@@ -71,7 +71,7 @@ class AddContentDialog extends React.Component<IAddContentDialogProps, IAddConte
     }
 
     private handleAddBook = () => {
-        //TODO: Add the book...
+        //TODO: Add the book... If it doesnt exist in the backend add it AND associate it with the lender somehow, otherwise just associate it
         this.handleClose();
         alert("🎈🎊💃🏻");
     }
