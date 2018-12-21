@@ -13,6 +13,9 @@ const styles: any = theme => ({
     },
     paper: {
         minWidth: 450,
+    },
+    authorChip: {
+        marginRight: theme.spacing.unit
     }
 });
 
@@ -50,7 +53,7 @@ class SimpleBookView extends React.Component<ISimpleBookViewProps, any> {
                                         key={data}
                                         icon={<PersonIcon/>}
                                         label={data}
-                                        className={classes.chip}
+                                        className={classes.authorChip}
                                     />
                                     })
                                     : "" : ""}
