@@ -36,6 +36,7 @@ const initialState = {
 };
 
 @inject('bookStore')
+@inject('authStore')
 @observer
 class AddContentDialog extends React.Component<IAddContentDialogProps, IAddContentDialogState> {
     state = initialState;
@@ -70,8 +71,14 @@ class AddContentDialog extends React.Component<IAddContentDialogProps, IAddConte
         this.props.onClose();
     }
 
-    private handleAddBook = () => {
-        //TODO: Add the book... If it doesnt exist in the backend add it AND associate it with the lender somehow, otherwise just associate it
+    private handleAddBook = async() => {
+        
+        //TODO: Move all of the logic to the BookStore
+        // if(this.state.pendingBook){
+        //     await bookStore.createBookIfDoesntExist(this.state.pendingBook!);
+        //     await bookStore.associateBookWithUser(this.state.pendingBook!, authStore.userProfile!.uid);
+        // }
+
         this.handleClose();
         alert("🎈🎊💃🏻");
     }

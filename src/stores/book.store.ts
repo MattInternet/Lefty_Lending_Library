@@ -13,6 +13,18 @@ export class BookStore{
         return await client.books.getBook(isbn13);
     }
 
+    public createBookIfDoesntExist = async (newBook : Book):Promise<void> => {
+        if(!await this.getBook(newBook.isbn13)){
+            await client.books.createBook(newBook);
+        }
+    }
+
+    // public createLenderBook = async (book: Book, userId: string):Promise<void> => {
+    //     //await client.lenderBooks.createLenderBook()
+    //     await client.users.createUserBook(userId, book); //Adds the Book the the User's UserBooks collection
+    //     await client.books.createBookUser(book, userId); //TODO: Add the User to the Book's BookUsers collection
+    // }
+
     //Searches from the backend AND from the 🕸 for a book via isbn13
     //Accept both ISBN10 and ISBN13
     public findBookOnlineByISBN = async (isbn: string):Promise<BookSearchResult> => {
@@ -23,7 +35,7 @@ export class BookStore{
             result.Book = book;
             result.BookExistsInBackend = true;
         }
-        result.Book = await client.googlebooks.findBookByISBN13(isbn13);
+        result.Book = await client.googleBooks.findBookByISBN13(isbn13);
         return result;
     }
 

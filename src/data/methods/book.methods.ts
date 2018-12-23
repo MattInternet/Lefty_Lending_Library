@@ -18,4 +18,8 @@ export class BookMethods {
         }
         return this._bookSerializer.parse(rawBook.data()) || null;
     }
+
+    public createBook = async (newBook : Book):Promise<void> => {
+        await this._storage.collection(Collections.BOOKS_COLLECTION).doc(newBook.isbn13).set({...newBook});
+    }
 }

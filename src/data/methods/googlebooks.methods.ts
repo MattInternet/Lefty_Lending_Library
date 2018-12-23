@@ -21,12 +21,12 @@ export class GoogleBooksMethods {
         let parsedBook = new Book();
         parsedBook.isbn13 = isbn13;
         parsedBook.Title = googleBook["volumeInfo"]["title"];
-        parsedBook.Subtitle = googleBook["volumeInfo"]["subtitle"];
+        parsedBook.Subtitle = googleBook["volumeInfo"]["subtitle"] ? googleBook["volumeInfo"]["subtitle"] : null;
         parsedBook.Authors = googleBook["volumeInfo"]["authors"];
         parsedBook.Publisher = googleBook["volumeInfo"]["publisher"];
         parsedBook.PublishedDate = googleBook["volumeInfo"]["publishedDate"];
         parsedBook.PageCount = googleBook["volumeInfo"]["pageCount"];
-        parsedBook.ThumbnailURL = googleBook["volumeInfo"]["imageLinks"]["thumbnail"];
+        parsedBook.ThumbnailURL = googleBook["volumeInfo"]["imageLinks"]["thumbnail"] ? googleBook["volumeInfo"]["imageLinks"]["thumbnail"] : null;
         parsedBook.Description = googleBook["volumeInfo"]["description"];
 
         return parsedBook;

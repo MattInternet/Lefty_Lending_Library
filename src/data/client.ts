@@ -4,7 +4,7 @@ import { UserMethods, BookMethods, GoogleBooksMethods } from "./methods";
 export class Client {
     public users: UserMethods;
     public books: BookMethods;
-    public googlebooks: GoogleBooksMethods;
+    public googleBooks: GoogleBooksMethods;
 
     constructor(){
         storage.settings({
@@ -12,7 +12,7 @@ export class Client {
         });
         this.users = new UserMethods(storage);
         this.books = new BookMethods(storage);
-        this.googlebooks = new GoogleBooksMethods();
+        this.googleBooks = new GoogleBooksMethods();
     }
 }
 
