@@ -12,7 +12,7 @@ export class BookStore{
     public getBook = async (isbn13: string):Promise<Book|null> => {
         return await client.books.getBook(isbn13);
     }
-t
+
     //Searches from the backend AND from the 🕸 for a book via isbn13
     //Accept both ISBN10 and ISBN13
     public findBookOnlineByISBN = async (isbn: string):Promise<BookSearchResult> => {
