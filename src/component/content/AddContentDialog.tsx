@@ -2,10 +2,11 @@ import * as React from 'react';
 
 import { Dialog, withStyles, Button, DialogTitle, DialogActions, DialogContent, DialogContentText, TextField, Chip, Tooltip } from '@material-ui/core';
 import { inject, observer } from 'mobx-react';
-import { bookStore } from 'stores';
-import { Book } from 'data/models';
+import { bookStore, authStore } from 'stores';
+import { Book, LenderBookInfo } from 'data/models';
 import { SimpleBookView } from '.';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import { BookCondition } from 'data/enums';
 
 interface IAddContentDialogProps {
     open: boolean,
@@ -72,15 +73,22 @@ class AddContentDialog extends React.Component<IAddContentDialogProps, IAddConte
     }
 
     private handleAddBook = async() => {
-        
+        //TODO: Get LenderBookInfo from the UI 😁
+        let fakeLenderBookInfo = new LenderBookInfo();
+        fakeLenderBookInfo.Condtion = BookCondition.Like_New;
+        fakeLenderBookInfo.LenderEmail = authStore.userProfile!.Email;
+        fakeLenderBookInfo.LenderName = authStore.userProfile!.DisplayName;
+        fakeLenderBookInfo.PermissionToMarkup = false;
+
         //TODO: Move all of the logic to the BookStore
-        // if(this.state.pendingBook){
-        //     await bookStore.createBookIfDoesntExist(this.state.pendingBook!);
-        //     await bookStore.associateBookWithUser(this.state.pendingBook!, authStore.userProfile!.uid);
-        // }
+        if(this.state.pendingBook){
+            await bookStore.createBookIfDoesntExist(this.state.pendingBook!);
+
+
+            await bookStore.createLenderBook(fakeLenderBookInfo, this.state.pendingBook!, authStore.userProfile!.uid);
+        }
 
         this.handleClose();
-        alert("🎈🎊💃🏻");
     }
 
     public render() {

@@ -1,5 +1,5 @@
 import { Collections } from "data/collections";
-import { Book } from "data/models";
+import { Book, LenderBookInfo } from "data/models";
 import { TypedJSON } from "typedjson";
 
 export class BookMethods {
@@ -21,5 +21,9 @@ export class BookMethods {
 
     public createBook = async (newBook : Book):Promise<void> => {
         await this._storage.collection(Collections.BOOKS_COLLECTION).doc(newBook.isbn13).set({...newBook});
+    }
+
+    public async addLenderInfo(isbn13: string, userId:string, lenderBookInfo: LenderBookInfo): Promise<void> {
+        await this._storage.collection(Collections.BOOKS_COLLECTION).doc(isbn13).collection(Collections.LENDERBOOKINFOS_COLLECTION).doc(userId).set({...lenderBookInfo});
     }
 }

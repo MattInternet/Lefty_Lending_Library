@@ -1,5 +1,5 @@
 import { client } from "data";
-import { Book } from "data/models";
+import { Book, LenderBookInfo } from "data/models";
 
 //TODO: Move this to its own file...
 export class BookSearchResult{
@@ -19,11 +19,10 @@ export class BookStore{
         }
     }
 
-    // public createLenderBook = async (book: Book, userId: string):Promise<void> => {
-    //     //await client.lenderBooks.createLenderBook()
-    //     await client.users.createUserBook(userId, book); //Adds the Book the the User's UserBooks collection
-    //     await client.books.createBookUser(book, userId); //TODO: Add the User to the Book's BookUsers collection
-    // }
+    public createLenderBook = async (lenderBookInfo: LenderBookInfo, book: Book, userId: string):Promise<void> => {
+        // await client.lenderBookInfos.createLenderBookInfo(userId, lenderBookInfo);
+        await client.books.addLenderInfo(book.isbn13, userId, lenderBookInfo); //Add LenderInfo to a sub collection on the book
+    }
 
     //Searches from the backend AND from the 🕸 for a book via isbn13
     //Accept both ISBN10 and ISBN13
