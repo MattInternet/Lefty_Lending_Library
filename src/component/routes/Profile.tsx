@@ -4,8 +4,9 @@ import AddIcon from '@material-ui/icons/Add'
 import { inject, observer } from 'mobx-react';
 import { AuthStore,  BookStore } from 'stores';
 import { UserProfilePanel } from 'component';
-import { AddContentDialog, BookGrid } from 'component/content';
+import { AddContentDialog, LenderBookGrid } from 'component/content';
 import { Book } from 'data/models';
+import { pubsub, USER_AUTHENTICATED } from 'pubsub';
 
 const styles: any = theme => ({
     fab: {
@@ -45,6 +46,19 @@ class Profile extends React.Component<IProfileRouteProps, IProfileRouteState> {
 
     componentDidMount = async() => {
         console.log('component did mount');
+        if(!this.props.authStore.userProfile){
+            pubsub.subscribe(USER_AUTHENTICATED, this.onUserAuthenticated);
+            return;
+        }
+        this.loadBooks();
+    }
+
+    onUserAuthenticated = () => {
+        pubsub.unsubscribe(USER_AUTHENTICATED);
+        this.loadBooks();
+    }
+
+    loadBooks = async() => {
         let lenderBooks = await this.props.bookStore.getLenderBooks(this.props.authStore.userProfile!.uid);
         this.setState({
             lenderBooks: lenderBooks
@@ -64,7 +78,7 @@ class Profile extends React.Component<IProfileRouteProps, IProfileRouteState> {
 
                 <AddContentDialog open={this.state.addContentOpen} onClose={this.setAddContentVisibility(false)}/>
 
-                <BookGrid books={this.state.lenderBooks}/>
+                <LenderBookGrid books={this.state.lenderBooks}/>
 
                 {this.state.addContentOpen ?
                     null

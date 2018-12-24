@@ -5,6 +5,10 @@ import { firebase, auth } from 'libs';
 import client from 'data/client';
 import {User} from 'data/models/User'
 import { IUserCreationInfo } from 'common';
+import {
+    pubsub,
+    USER_AUTHENTICATED,
+} from 'pubsub';
 
 export class AuthStore {
     /**
@@ -180,6 +184,7 @@ export class AuthStore {
     @action
     private setUserProfile = (userProfile: User | null) => {
         console.log('setUserProfile', userProfile);
+        pubsub.publish(USER_AUTHENTICATED, null);
         this.userProfile = userProfile;
     }
 

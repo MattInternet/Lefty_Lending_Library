@@ -21,7 +21,7 @@ interface IBookGridProps {
 
 @inject('bookStore')
 @observer
-class BookGrid extends React.Component<IBookGridProps, any> {
+class LenderBookGrid extends React.Component<IBookGridProps, any> {
 
     public render() {
         const { classes } = this.props;
@@ -43,4 +43,4 @@ class BookGrid extends React.Component<IBookGridProps, any> {
     }
 }
 
-export default withStyles(styles)(BookGrid);
+export default withStyles(styles)(LenderBookGrid);

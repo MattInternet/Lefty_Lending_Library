@@ -112,8 +112,7 @@ class SimpleBookView extends React.Component<ISimpleBookViewProps, any> {
                                     </Typography>
                                     {this.props.book ? this.props.book.Authors ?
                                         this.props.book.Authors.map(data => {
-                                            console.log('author', data);
-
+                                            
                                             return <Chip
                                                 key={data}
                                                 icon={<PersonIcon />}
