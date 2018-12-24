@@ -1,9 +1,22 @@
-let isProduction = false; //TODO: Find a way to set this accordingly
+let buildType = process.env.REACT_APP_BUILD_ENV; //TODO: Find a way to set this accordingly
 
 let config = {};
-if (isProduction) {
+console.log(`Build type: ${buildType}`);
+if (buildType === "production") {
     throw new Error('No production auth config setup!');
-} else {
+}
+else if(buildType === "staging"){
+    config = {
+        apiKey: "AIzaSyDqv2ZTLI6GedIqIXfgjHtdAY7AzZ_Rt-o",
+        authDomain: "leftylendinglibrary-staging.firebaseapp.com",
+        databaseURL: "https://leftylendinglibrary-staging.firebaseio.com",
+        projectId: "leftylendinglibrary-staging",
+        storageBucket: "leftylendinglibrary-staging.appspot.com",
+        messagingSenderId: "846787073683"
+    }
+}
+//Dev
+else {
     config = {
         apiKey: "AIzaSyAwA1MMLiWA19hmOwNOyAtmG2lW_Uuh3gc",
         authDomain: "leftylendinglibrary-c85d7.firebaseapp.com",

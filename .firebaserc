@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "leftylendinglibrary-c85d7"
+    "default": "leftylendinglibrary-c85d7",
+    "staging": "leftylendinglibrary-staging"
   }
 }
