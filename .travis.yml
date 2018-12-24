@@ -2,3 +2,13 @@ language: node_js
 node_js:
   - "iojs"
   - "8"
+
+before_deploy: "echo 'ready?'"
+
+deploy:
+  provider: firebase
+  token:
+    secure: "Nl1xXIQV0blgcLrnxMOF2nBVwWUkI4CtZlIStgUPU95wBDvJ+CNrKG0HZwrgsrK7qh9hAwbwahQqCvBpJK8ngY00Xk/F4OzG8w44yOfRAGlu7A/yqvGxBLGzEJY7f88dIBVuNWtgt8CVaPBzctqn/5u1/eEjq6cKEkcPfcfM76yGLyStDPBk8yG1FIRLIO1UGX46mx1T9dc9mtMgAnI7P8b1u8FMxcRBC4zhhqboWOshcAdgO2XnWlaGc7E0QPD8UahEoJEntZNkAPVbaLUKqkAaQJNDrapbWCWTzsFdLFUrzpoxDcAW9BRVteWKDzmp/t9kccQ/KzRGcufb/7boakqqXqhnjsS7sJ6KBvoclBnzAbZGxP9CaFtRcHbz9KcbYHlbecdnz9fdVNbQA1g1gvCb2wty3w0w9R2VhZWC5+hdvA/meXjJPhySt5wRNS1vVpM46Jii7xso6jRrPCJDOlyFerX6HntP5vkx5DAoe4VcFUwP4NwIz6Mm8JTRj2ibbzXiYPRgwoLhAuoHaKd6nPi3IR4fegr3jmvEIdyq/PY44MHo38QcODlmLK8HNdkVcxGPSJ7IaMZklmdxXkqnp3KRINjGJseRoN4+SL67nmV8WPbrLs9jIMQJyHBYQW488mqMfk4F17IGF5/zvFQoD6mZ6StYCoBzd6AwjOAzbjU="
+  project: "LeftyLendingLibrary-staging"
+
+after_deploy: "echo 'DONE!'"
