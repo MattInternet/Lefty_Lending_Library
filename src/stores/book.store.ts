@@ -58,15 +58,17 @@ export class BookStore{
     //#region private
     onUserAuthenticated = async(USER_AUTHENTICATED: string, user: User|null) => {
         if(!user){
+            client.books.unsubscribeAll();
             this.lenderBooks = null;
             return;
         }
-        this.lenderBooks = await this.getLenderBooks(user.uid);
+        client.books.subscribeToBooksByLender(this.onLenderBooksChanged, user.uid);
     }
 
-    getLenderBooks = async(userId: string) => {
-        return await client.books.getBooksByLender(userId);
+    onLenderBooksChanged = async(books:Book[]) => {
+        this.lenderBooks = books;
     }
+    
     //#endregion
 }
 
