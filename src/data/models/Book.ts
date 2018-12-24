@@ -21,19 +21,19 @@ export class Book implements IBook {
     Authors!: string[]
 
     @jsonMember({constructor: String})
-    Publisher!: string
+    Publisher: string
 
     @jsonMember({constructor: Date})
     PublishedDate!: Date
 
     @jsonMember({constructor: Number})
-    PageCount!: number
+    PageCount: number
 
     @jsonMember({constructor: String})
     ThumbnailURL!: string
 
     @jsonMember({constructor: String})
-    Description!: string
+    Description: string
 
     @jsonArrayMember(String)
     Lenders: string[]

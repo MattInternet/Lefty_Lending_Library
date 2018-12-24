@@ -23,11 +23,11 @@ export class GoogleBooksMethods {
         parsedBook.Title = googleBook["volumeInfo"]["title"];
         parsedBook.Subtitle = googleBook["volumeInfo"]["subtitle"] ? googleBook["volumeInfo"]["subtitle"] : null;
         parsedBook.Authors = googleBook["volumeInfo"]["authors"];
-        parsedBook.Publisher = googleBook["volumeInfo"]["publisher"];
+        parsedBook.Publisher = googleBook["volumeInfo"]["publisher"] ? googleBook["volumeInfo"]["publisher"] : null;
         parsedBook.PublishedDate = googleBook["volumeInfo"]["publishedDate"];
-        parsedBook.PageCount = googleBook["volumeInfo"]["pageCount"];
+        parsedBook.PageCount = googleBook["volumeInfo"]["pageCount"] ? googleBook["volumeInfo"]["pageCount"] : null;
         parsedBook.ThumbnailURL = googleBook["volumeInfo"]["imageLinks"]["thumbnail"] ? googleBook["volumeInfo"]["imageLinks"]["thumbnail"] : null;
-        parsedBook.Description = googleBook["volumeInfo"]["description"];
+        parsedBook.Description = googleBook["volumeInfo"]["description"] ? googleBook["volumeInfo"]["description"] : null;
 
         return parsedBook;
     }
