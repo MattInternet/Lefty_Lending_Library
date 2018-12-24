@@ -184,7 +184,7 @@ export class AuthStore {
     @action
     private setUserProfile = (userProfile: User | null) => {
         console.log('setUserProfile', userProfile);
-        pubsub.publish(USER_AUTHENTICATED, null);
+        pubsub.publish(USER_AUTHENTICATED, userProfile);
         this.userProfile = userProfile;
     }
 

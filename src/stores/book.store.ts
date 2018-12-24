@@ -1,5 +1,7 @@
 import { client } from "data";
-import { Book, LenderBookInfo } from "data/models";
+import { Book, LenderBookInfo, User } from "data/models";
+import { pubsub, USER_AUTHENTICATED } from "pubsub";
+import { observable } from "mobx";
 
 //TODO: Move this to its own file...
 export class BookSearchResult{
@@ -8,6 +10,13 @@ export class BookSearchResult{
 }
 
 export class BookStore{
+    constructor() {
+        pubsub.subscribe(USER_AUTHENTICATED, this.onUserAuthenticated);
+    }
+
+    @observable
+    public lenderBooks: Book[] | null;
+
     //#region Public
     public getBook = async (isbn13: string):Promise<Book|null> => {
         return await client.books.getBook(isbn13);
@@ -21,10 +30,6 @@ export class BookStore{
 
     public createLenderBook = async (lenderBookInfo: LenderBookInfo, book: Book, userId: string):Promise<void> => {
         await client.books.addLenderInfo(book.isbn13, userId, lenderBookInfo); //Add LenderInfo to a sub collection on the book
-    }
-
-    public getLenderBooks = async(userId: string):Promise<Book[]|null> => {
-        return await client.books.getBooksByLender(userId);
     }
 
     //Searches from the backend AND from the 🕸 for a book via isbn13
@@ -41,17 +46,26 @@ export class BookStore{
         return result;
     }
 
-    //TODO: Kill this...
-    public testFindBook = () =>  {
-        this.findBookOnlineByISBN("9781451648546");
-    }
-
     public getIsbn13 = (isbn: string) => {
         //TODO: If isbn is isbn13 return, if its isbn10 then make an isbn13 ;P Currently only supports ISBN10 and errors on 13
         if(isbn.length != 13){
             throw new Error('getIsbn13 isnt implemented yet 😱');
         }
         return isbn;
+    }
+    //#endregion
+
+    //#region private
+    onUserAuthenticated = async(USER_AUTHENTICATED: string, user: User|null) => {
+        if(!user){
+            this.lenderBooks = null;
+            return;
+        }
+        this.lenderBooks = await this.getLenderBooks(user.uid);
+    }
+
+    getLenderBooks = async(userId: string) => {
+        return await client.books.getBooksByLender(userId);
     }
     //#endregion
 }

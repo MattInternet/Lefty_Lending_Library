@@ -1,9 +1,9 @@
 import * as React from 'react';
 
-import { Book } from 'data/models';
 import { withStyles, Grid } from '@material-ui/core';
 import { inject, observer } from 'mobx-react';
 import { SimpleBookView } from '.';
+import { bookStore } from 'stores';
 
 const styles: any = theme => ({
     bookGrid: {
@@ -15,7 +15,6 @@ const styles: any = theme => ({
 });
 
 interface IBookGridProps {
-    books: Book[] | null;
     classes: any;
 }
 
@@ -25,12 +24,13 @@ class LenderBookGrid extends React.Component<IBookGridProps, any> {
 
     public render() {
         const { classes } = this.props;
+        const { lenderBooks }=bookStore;
 
         return (
             <React.Fragment>
                 <Grid className={classes.bookGrid} container spacing={32}>
-                    {this.props.books ?
-                        this.props.books.map(book => (
+                    {lenderBooks ?
+                        lenderBooks.map(book => (
                             <Grid key={book.isbn13} item>
                                 <SimpleBookView small={true} book={book}/>
                             </Grid>
