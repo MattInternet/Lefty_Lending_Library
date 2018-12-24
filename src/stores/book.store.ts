@@ -20,8 +20,11 @@ export class BookStore{
     }
 
     public createLenderBook = async (lenderBookInfo: LenderBookInfo, book: Book, userId: string):Promise<void> => {
-        // await client.lenderBookInfos.createLenderBookInfo(userId, lenderBookInfo);
         await client.books.addLenderInfo(book.isbn13, userId, lenderBookInfo); //Add LenderInfo to a sub collection on the book
+    }
+
+    public getLenderBooks = async(userId: string):Promise<Book[]|null> => {
+        return await client.books.getBooksByLender(userId);
     }
 
     //Searches from the backend AND from the 🕸 for a book via isbn13

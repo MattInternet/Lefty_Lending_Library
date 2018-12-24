@@ -1,4 +1,6 @@
 import { jsonObject, jsonMember, jsonArrayMember } from "typedjson";
+import { computed } from "mobx";
+import { truncate } from 'lodash';
 
 export interface IBook {
     isbn13: string
@@ -32,4 +34,13 @@ export class Book implements IBook {
 
     @jsonMember({constructor: String})
     Description!: string
+
+    @jsonArrayMember(String)
+    Lenders: string[]
+
+    @computed
+    public get ShortDescription(): string|null{
+        return this.Description ? truncate(this.Description, { length: 250 })
+        : null;
+    }
 }
