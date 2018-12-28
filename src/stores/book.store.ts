@@ -1,5 +1,5 @@
 import { client } from "data";
-import { Book, LenderBookInfo, User } from "data/models";
+import { Book, BookLenderInfo, User } from "data/models";
 import { pubsub, USER_AUTHENTICATED } from "pubsub";
 import { observable } from "mobx";
 
@@ -28,7 +28,8 @@ export class BookStore{
         }
     }
 
-    public createLenderBook = async (lenderBookInfo: LenderBookInfo, book: Book, userId: string):Promise<void> => {
+    public createBookAndAssociateWithLender = async (lenderBookInfo: BookLenderInfo, book: Book, userId: string):Promise<void> => {
+        await this.createBookIfDoesntExist(book);
         await client.books.addLenderInfo(book.isbn13, userId, lenderBookInfo); //Add LenderInfo to a sub collection on the book
     }
 

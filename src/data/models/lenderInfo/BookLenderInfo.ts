@@ -1,8 +1,9 @@
 import { jsonObject, jsonMember } from "typedjson";
 import { BookCondition } from "data/enums";
+import { ILenderInfo } from "./ILenderInfo";
 
 @jsonObject
-export class LenderBookInfo{
+export class BookLenderInfo implements ILenderInfo{
     @jsonMember({constructor: String})
     LenderName: string;
 

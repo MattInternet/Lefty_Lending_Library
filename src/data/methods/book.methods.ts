@@ -1,5 +1,5 @@
 import { Collections } from "data/collections";
-import { Book, LenderBookInfo } from "data/models";
+import { Book, BookLenderInfo } from "data/models";
 import { TypedJSON } from "typedjson";
 import * as firebase from "firebase";
 
@@ -47,7 +47,7 @@ export class BookMethods {
         });
     }
 
-    public async addLenderInfo(isbn13: string, userId: string, lenderBookInfo: LenderBookInfo): Promise<void> {
+    public async addLenderInfo(isbn13: string, userId: string, lenderBookInfo: BookLenderInfo): Promise<void> {
         await this._storage.collection(Collections.BOOKS_COLLECTION).doc(isbn13).update({
             Lenders: firebase.firestore.FieldValue.arrayUnion(userId)
         })
