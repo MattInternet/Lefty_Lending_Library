@@ -1,6 +1,7 @@
 import { jsonObject, jsonMember, jsonArrayMember } from "typedjson";
 import { computed } from "mobx";
 import { truncate } from 'lodash';
+import * as moment from 'moment';
 
 export interface IBook {
     isbn13: string
@@ -41,6 +42,11 @@ export class Book implements IBook {
     @computed
     public get ShortDescription(): string|null{
         return this.Description ? truncate(this.Description, { length: 250 })
+        : null;
+    }
+
+    @computed get ShortPublishedDate(): string|null{
+        return this.PublishedDate ? moment(this.PublishedDate).format("MMM Do YYYY")
         : null;
     }
 }

@@ -4,7 +4,7 @@ import AddIcon from '@material-ui/icons/Add'
 import { inject, observer } from 'mobx-react';
 import { AuthStore } from 'stores';
 import { UserProfilePanel } from 'component';
-import { AddContentDialog, LenderBookGrid } from 'component/content';
+import { AddContentDialog, LenderContentGrid } from 'component/content';
 import { Book } from 'data/models';
 
 const styles: any = theme => ({
@@ -53,7 +53,7 @@ class Profile extends React.Component<IProfileRouteProps, IProfileRouteState> {
 
                 <AddContentDialog open={this.state.addContentOpen} onClose={this.setAddContentVisibility(false)}/>
 
-                <LenderBookGrid/>
+                <LenderContentGrid/>
 
                 {this.state.addContentOpen ?
                     null
