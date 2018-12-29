@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { withStyles, Typography, AppBar, Tabs, Tab } from '@material-ui/core';
+import BooksTable from 'component/content/BooksTable';
 
 const styles: any = (theme: any) => ({
     root:{
@@ -19,6 +20,7 @@ enum LibraryTabs {
     Misc="Miscellaneous"
 }
 
+//TODO: Remove this once its no longer used...
 function TabContainer(props) {
     return (
       <Typography component="div" style={{ padding: 8 * 3 }}>
@@ -68,7 +70,7 @@ class Library extends React.Component<any, ILibraryState> {
                         <Tab label={LibraryTabs.Misc} value={LibraryTabs.Misc}/>
                     </Tabs>
                 </AppBar>
-                {selectedTab === LibraryTabs.Books && <TabContainer>Books</TabContainer>}
+                {selectedTab === LibraryTabs.Books && <BooksTable/>}
                 {selectedTab === LibraryTabs.Magazines && <TabContainer>Magazines</TabContainer>}
                 {selectedTab === LibraryTabs.PDFs && <TabContainer>PDFs</TabContainer>}
                 {selectedTab === LibraryTabs.Misc && <TabContainer>Miscellaneous</TabContainer>}

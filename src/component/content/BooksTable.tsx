@@ -1,47 +1,23 @@
 import * as React from 'react';
-
-import { withStyles, Table, TableHead, TableRow, TableCell, TableBody, Chip, Typography, Button, Grid, Hidden } from '@material-ui/core';
-import { inject, observer } from 'mobx-react';
+import { withStyles, TableHead, Table, TableRow, TableCell, TableBody, Chip } from '@material-ui/core';
 import { bookStore } from 'stores';
+import { inject, observer } from 'mobx-react';
 import PersonIcon from '@material-ui/icons/Person'
 
-const styles: any = theme => ({
-    title:{
-        margin: theme.spacing.unit
-    }
-});
+const styles: any = (theme: any) => ({
 
-interface IBookGridProps {
-    classes: any;
-    onAddContent: any;
-}
+});
 
 @inject('bookStore')
 @observer
-class LenderContentGrid extends React.Component<IBookGridProps, any> {
+class BooksTable extends React.Component<any, any> {
 
     public render() {
-        const { classes, onAddContent } = this.props;
-        const { lenderBooks }=bookStore;
+        // const { classes } = this.props;
+        const { filteredBooks } = bookStore;
 
         return (
             <React.Fragment>
-                <Grid container alignItems="center">
-                    <Grid item>
-                        <Typography className={classes.title} variant="h3">
-                            Your Books
-                        </Typography>
-                    </Grid>
-                    <Grid item>
-                        <Hidden smDown>
-                            <Button variant="contained" color="primary" className={classes.createBookButton} onClick={onAddContent(true)}>
-                                <Typography>
-                                    Create A Book
-                                </Typography>
-                            </Button>
-                        </Hidden>
-                    </Grid>
-                </Grid>
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -53,8 +29,8 @@ class LenderContentGrid extends React.Component<IBookGridProps, any> {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                    {lenderBooks ?
-                        lenderBooks.map(book => (
+                    {filteredBooks ?
+                        filteredBooks.map(book => (
                             <TableRow key={book.isbn13}>
                                 <TableCell>{book.Title}</TableCell>
                                 <TableCell>{book ? book.Authors ?
@@ -63,7 +39,6 @@ class LenderContentGrid extends React.Component<IBookGridProps, any> {
                                                 key={data}
                                                 icon={<PersonIcon />}
                                                 label={data}
-                                                className={classes.authorChip}
                                             />
                                         })
                                         : "" : ""}</TableCell>
@@ -81,4 +56,4 @@ class LenderContentGrid extends React.Component<IBookGridProps, any> {
     }
 }
 
-export default withStyles(styles)(LenderContentGrid);
+export default withStyles(styles)(BooksTable);

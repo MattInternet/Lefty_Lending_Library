@@ -7,6 +7,7 @@ export class BookMethods {
     private _storage: firebase.firestore.Firestore;
     private _bookSerializer: TypedJSON<Book>;
     private _booksByLenderSubscription: ()=> any;
+    private _filteredBooksSubscription: ()=> any;
 
     constructor(storage: firebase.firestore.Firestore) {
         this._storage = storage;
@@ -25,9 +26,15 @@ export class BookMethods {
         await this._storage.collection(Collections.BOOKS_COLLECTION).doc(newBook.isbn13).set({ ...newBook });
     }
 
-    public unsubscribeAll = () => {
+    public unsubscribeBooksByLender = () => {
         if(this._booksByLenderSubscription){
             this._booksByLenderSubscription();
+        }
+    }
+
+    public unsubscribeFilteredBooks = () => {
+        if(this._filteredBooksSubscription){
+            this._filteredBooksSubscription();
         }
     }
 
@@ -36,6 +43,19 @@ export class BookMethods {
     */
     public subscribeToBooksByLender = async (onLenderBooksChanged: (books: Book[]) => any, userId: string) => {
         this._booksByLenderSubscription = this._storage.collection(Collections.BOOKS_COLLECTION).where(`Lenders`, "array-contains", userId).onSnapshot((data) => {
+            let lenderBooks: Book[] = [];
+            data.docs.forEach((doc) => {
+                let parsedBook: Book | undefined = this._bookSerializer.parse(doc.data());
+                if (parsedBook) {
+                    lenderBooks.push(parsedBook);
+                }
+            });
+            onLenderBooksChanged(lenderBooks);
+        });
+    }
+
+    public subscribeToFilteredBooks = async(onFilteredBooksChanged: (books: Book[]) => any) => {
+        this._filteredBooksSubscription = this._storage.collection(Collections.BOOKS_COLLECTION).onSnapshot((data) => {
             let books: Book[] = [];
             data.docs.forEach((doc) => {
                 let parsedBook: Book | undefined = this._bookSerializer.parse(doc.data());
@@ -43,7 +63,7 @@ export class BookMethods {
                     books.push(parsedBook);
                 }
             });
-            onLenderBooksChanged(books);
+            onFilteredBooksChanged(books);
         });
     }
 

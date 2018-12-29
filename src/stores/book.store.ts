@@ -12,6 +12,7 @@ export class BookSearchResult{
 export class BookStore{
     constructor() {
         pubsub.subscribe(USER_AUTHENTICATED, this.onUserAuthenticated);
+        this.setCurrentBooksParameters();
     }
 
     @observable
@@ -54,12 +55,24 @@ export class BookStore{
         }
         return isbn;
     }
+
+    @observable
+    public filteredBooks: Book[] | null;
+
+    setCurrentBooksParameters = async() =>{
+        client.books.subscribeToFilteredBooks(this.onBooksChanged);
+    }
     //#endregion
 
     //#region private
+
+    onBooksChanged = async(books:Book[])=>{
+        this.filteredBooks = books;
+    }
+
     onUserAuthenticated = async(USER_AUTHENTICATED: string, user: User|null) => {
         if(!user){
-            client.books.unsubscribeAll();
+            client.books.unsubscribeBooksByLender();
             this.lenderBooks = null;
             return;
         }
