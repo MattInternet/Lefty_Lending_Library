@@ -10,7 +10,6 @@ const styles: any = (theme: any) => ({
 
 class Home extends React.Component<any, any> {
     public render() {
-        
         const {
             classes
         } = this.props;

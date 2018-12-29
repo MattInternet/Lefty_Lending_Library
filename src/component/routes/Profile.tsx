@@ -64,7 +64,6 @@ class Profile extends React.Component<IProfileRouteProps, IProfileRouteState> {
                         </Fab>
                     }
                 </Hidden>
-
             </div>
         )
     }

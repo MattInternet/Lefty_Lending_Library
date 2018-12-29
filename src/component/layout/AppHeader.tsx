@@ -42,6 +42,8 @@ class AppHeader extends React.Component<IHeaderProps, any>{
                     <div className={classes.navItemList}>
                         <DrawerMenuNavItem destination="/" title={'Home'} onClick={this.toggleDrawer(false)}/>
                         
+                        <DrawerMenuNavItem destination="/library/Books" title={'Library'} onClick={this.toggleDrawer(false)}/>
+
                         <DrawerMenuNavItem destination="/about" title={'About'} onClick={this.toggleDrawer(false)}/>
                     </div>
                 </DrawerMenu>
