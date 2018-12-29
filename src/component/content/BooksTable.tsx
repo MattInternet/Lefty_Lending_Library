@@ -13,7 +13,6 @@ const styles: any = (theme: any) => ({
 @inject('bookStore')
 @observer
 class BooksTable extends React.Component<any, any> {
-
     public render() {
         // const { classes } = this.props;
         const { filteredBooks } = bookStore;

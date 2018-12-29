@@ -54,6 +54,8 @@ export class BookMethods {
         });
     }
 
+    //Currently this is not 'filtered' at all, its just all the books. Ill do that when i handle pagination 😁
+    //https://devexpress.github.io/devextreme-reactive/react/grid/ 👈🏻Thats free for non commercial 😎
     public subscribeToFilteredBooks = async(onFilteredBooksChanged: (books: Book[]) => any) => {
         this._filteredBooksSubscription = this._storage.collection(Collections.BOOKS_COLLECTION).onSnapshot((data) => {
             let books: Book[] = [];
