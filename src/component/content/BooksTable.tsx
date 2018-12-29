@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { withStyles, TableHead, Table, TableRow, TableCell, TableBody, Chip } from '@material-ui/core';
+import { withStyles } from '@material-ui/core';
 import { bookStore } from 'stores';
 import { inject, observer } from 'mobx-react';
-import PersonIcon from '@material-ui/icons/Person'
+
+import MaterialTable from 'material-table';
+import { Book } from 'data/models';
 
 const styles: any = (theme: any) => ({
 
@@ -15,42 +17,25 @@ class BooksTable extends React.Component<any, any> {
     public render() {
         // const { classes } = this.props;
         const { filteredBooks } = bookStore;
-
+        let emptyBooks: Book[] = [];
         return (
             <React.Fragment>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="right">Title</TableCell>
-                            <TableCell align="right">Authors</TableCell>
-                            <TableCell align="right">Publisher</TableCell>
-                            <TableCell align="right">Published Date</TableCell>
-                            <TableCell align="right">Pages</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                    {filteredBooks ?
-                        filteredBooks.map(book => (
-                            <TableRow key={book.isbn13}>
-                                <TableCell>{book.Title}</TableCell>
-                                <TableCell>{book ? book.Authors ?
-                                        book.Authors.map(data => {
-                                            return <Chip
-                                                key={data}
-                                                icon={<PersonIcon />}
-                                                label={data}
-                                            />
-                                        })
-                                        : "" : ""}</TableCell>
-                                <TableCell>{book.Publisher}</TableCell>
-                                <TableCell>{book.ShortPublishedDate}</TableCell>
-                                <TableCell>{book.PageCount}</TableCell>
-                            </TableRow>
-                        ))
-                        :
-                        null}
-                    </TableBody>
-                </Table>
+                <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"></link>
+                <MaterialTable
+                    title="Demo Title"
+                    options={{
+                        search: false,
+                        toolbar: false
+                    }}
+                    columns={[
+                        { title: 'Title', field: 'Title' },
+                        { title: 'Author(s)', field: 'Authors' },
+                        { title: 'Publisher', field: 'Publisher'},
+                        { title: 'PublishedDate', field: 'PublishedDate', type: 'date' },
+                        { title: 'Pages', field: 'PageCount', type: 'numeric' },
+                    ]}
+                    data={filteredBooks || emptyBooks}
+                />
             </React.Fragment>
         );
     }

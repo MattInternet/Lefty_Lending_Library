@@ -16,6 +16,7 @@
     "firebase": "^5.7.0",
     "history": "^4.7.2",
     "lodash": "^4.17.11",
+    "material-table": "^1.9.0",
     "mobx": "^5.7.0",
     "mobx-react": "^5.2.8",
     "mobx-react-router": "^4.0.5",
