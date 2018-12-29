@@ -1,11 +1,11 @@
 import * as React from 'react';
 
 import { inject, observer } from 'mobx-react';
-import { Dialog, DialogTitle, DialogContent, DialogContentText, TextField, FormControl, Select, FilledInput, MenuItem, InputLabel, DialogActions, Button, withStyles } from '@material-ui/core';
+import { Dialog, DialogTitle, DialogContent, DialogContentText, TextField, FormControl, Select, FilledInput, MenuItem, InputLabel, DialogActions, Button, withMobileDialog, withStyles } from '@material-ui/core';
 import { UserLocation } from 'data/enums';
 
 
-import { ISignInDialogProps, IUserCreationInfo } from 'common';
+import {  IUserCreationInfo } from 'common';
 
 const styles: any = theme => ({
     fieldInput: {
@@ -19,15 +19,21 @@ const styles: any = theme => ({
     userInfoDialog:{
         maxWidth: 300
     }
+
 });
+
+interface ISignInDialogProps {
+    authStore?: any;
+    classes?: any;
+    fullScreen?: any;
+}
 
 @inject('authStore')
 @observer
-class UserInfoDialog extends React.Component<ISignInDialogProps,IUserCreationInfo> {
+class UserInfoDialog extends React.Component<ISignInDialogProps, IUserCreationInfo> {
 
     state = {
         preferredName: "",
-        //preferredName: this.props.authStore.firebaseUser ? this.props.authStore.firebaseUser.displayName : "", //TODO: Would be cool to popualte it to displayName by default...
         phone: "",
         location: UserLocation.NA,
         nameError: false,
@@ -71,13 +77,13 @@ class UserInfoDialog extends React.Component<ISignInDialogProps,IUserCreationInf
     };
 
     public render() {
-        const { classes, authStore } = this.props;
+        const { classes, authStore, fullScreen } = this.props;
         const {
             newUser,
         } = authStore;
 
         return(
-        <Dialog open={newUser}>
+        <Dialog open={newUser} fullScreen={fullScreen}>
             <DialogTitle>User Information</DialogTitle>
             <DialogContent className={classes.userInfoDialog}>
                 <DialogContentText>
@@ -129,4 +135,4 @@ class UserInfoDialog extends React.Component<ISignInDialogProps,IUserCreationInf
     }
 }
 
-export default withStyles(styles)(UserInfoDialog);
+export default withMobileDialog()(withStyles(styles)(UserInfoDialog));

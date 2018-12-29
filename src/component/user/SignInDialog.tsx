@@ -5,12 +5,12 @@ import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 
 import { auth } from 'libs';
 import { Dialog } from '@material-ui/core';
-import { IUserCreationInfo, ISignInDialogProps } from 'common';
+import { IUserCreationInfo } from 'common';
 import UserInfoDialog from './UserInfoDialog';
 
 @inject('authStore')
 @observer
-class SignInDialog extends React.Component<ISignInDialogProps, IUserCreationInfo> {
+class SignInDialog extends React.Component<any, IUserCreationInfo> {
     public render() {
         const {  authStore } = this.props;
         const {
