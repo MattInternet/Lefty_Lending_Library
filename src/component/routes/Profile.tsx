@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Fab, withStyles } from '@material-ui/core';
+import { Fab, withStyles, Hidden } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add'
 import { inject, observer } from 'mobx-react';
 import { AuthStore } from 'stores';
@@ -53,15 +53,17 @@ class Profile extends React.Component<IProfileRouteProps, IProfileRouteState> {
 
                 <AddContentDialog open={this.state.addContentOpen} onClose={this.setAddContentVisibility(false)}/>
 
-                <LenderContentGrid/>
+                <LenderContentGrid onAddContent={this.setAddContentVisibility}/>
 
-                {this.state.addContentOpen ?
-                    null
-                    :
-                    <Fab className={classes.fab} onClick={this.setAddContentVisibility(true)}>
-                        <AddIcon />
-                    </Fab>
-                }
+                <Hidden mdUp>
+                    {this.state.addContentOpen ?
+                        null
+                        :
+                        <Fab className={classes.fab} onClick={this.setAddContentVisibility(true)}>
+                            <AddIcon />
+                        </Fab>
+                    }
+                </Hidden>
 
             </div>
         )

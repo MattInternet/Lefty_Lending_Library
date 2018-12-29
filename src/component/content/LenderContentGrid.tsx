@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { withStyles, Table, TableHead, TableRow, TableCell, TableBody, Chip, Typography } from '@material-ui/core';
+import { withStyles, Table, TableHead, TableRow, TableCell, TableBody, Chip, Typography, Button, Grid, Hidden } from '@material-ui/core';
 import { inject, observer } from 'mobx-react';
 import { bookStore } from 'stores';
 import PersonIcon from '@material-ui/icons/Person'
@@ -8,11 +8,15 @@ import PersonIcon from '@material-ui/icons/Person'
 const styles: any = theme => ({
     title:{
         margin: theme.spacing.unit
+    },
+    createBookButton:{
+
     }
 });
 
 interface IBookGridProps {
     classes: any;
+    onAddContent: any;
 }
 
 @inject('bookStore')
@@ -20,14 +24,27 @@ interface IBookGridProps {
 class LenderContentGrid extends React.Component<IBookGridProps, any> {
 
     public render() {
-        const { classes } = this.props;
+        const { classes, onAddContent } = this.props;
         const { lenderBooks }=bookStore;
 
         return (
             <React.Fragment>
-                <Typography className={classes.title} variant="h3">
-                    Your Books:
-                </Typography>
+                <Grid container alignItems="center">
+                    <Grid item>
+                        <Typography className={classes.title} variant="h3">
+                            Your Books
+                        </Typography>
+                    </Grid>
+                    <Grid item>
+                        <Hidden smDown>
+                            <Button variant="contained" color="primary" className={classes.createBookButton} onClick={onAddContent(true)}>
+                                <Typography>
+                                    Create A Book
+                                </Typography>
+                            </Button>
+                        </Hidden>
+                    </Grid>
+                </Grid>
                 <Table>
                     <TableHead>
                         <TableRow>
