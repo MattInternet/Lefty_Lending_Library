@@ -76,11 +76,6 @@ export class BookMethods {
             return;
         }
 
-        //unsubscribe if we are subscribed...
-        if (this._filteredBooksSubscription) {
-            this._filteredBooksSubscription();
-        }
-
         this._filteredBooksSubscription = this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage - 1]).onSnapshot((data) => {
             this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length - 1];
             let books = this.parseBooksFromDocs(data.docs);
@@ -94,12 +89,11 @@ export class BookMethods {
             return;
         }
 
-        //unsubscribe if we are subscribed...
-        if (this._filteredBooksSubscription) {
-            this._filteredBooksSubscription();
-        }
-
         this._filteredBooksSubscription = this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage]).onSnapshot((data) => {
+            if(data.docs.length === 0){
+                this.isLastPage = true;
+                return;
+            }
             this.filteredBooksCurrentPage = this.filteredBooksCurrentPage + 1;
             this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length - 1];
             let books = this.parseBooksFromDocs(data.docs);
