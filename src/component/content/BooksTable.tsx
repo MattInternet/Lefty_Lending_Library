@@ -4,10 +4,10 @@ import { withStyles, Button } from '@material-ui/core';
 import { inject, observer } from 'mobx-react';
 
 import {
-    Grid, Table, TableHeaderRow, PagingPanel
+    Grid, Table, TableHeaderRow
 } from '@devexpress/dx-react-grid-material-ui';
 import {
-    SortingState, Sorting, PagingState, CustomPaging,
+    SortingState, Sorting
 } from '@devexpress/dx-react-grid';
 import { bookStore } from 'stores';
 import { PaginationParameters } from 'data';
@@ -20,8 +20,6 @@ const styles: any = (theme: any) => ({
 
 interface IBooksTableState {
     sorting: Sorting[],
-    currentPage: number,
-    pageSizes: number[],
 }
 
 @inject('bookStore')
@@ -32,9 +30,7 @@ class BooksTable extends React.Component<any, IBooksTableState> {
         super(props);
 
         this.state = {
-            sorting: [{ columnName: "Title", direction: 'desc' }],
-            currentPage: 0,
-            pageSizes: [5, 10, 15, 20]
+            sorting: [{ columnName: "Title", direction: 'desc' }]
         }
     }
 
@@ -57,15 +53,9 @@ class BooksTable extends React.Component<any, IBooksTableState> {
         });
     }
 
-    changeCurrentPage = (currentPage) => {
-        this.setState({
-            currentPage
-        });
-    }
-
     generatePaginationParameters() {
-        const { sorting, currentPage } = this.state;
-        let paginationHelper: PaginationParameters = { sort: sorting[0], currentPage: currentPage };
+        const { sorting } = this.state;
+        let paginationHelper: PaginationParameters = { sort: sorting[0] };
         return paginationHelper;
     }
 
@@ -80,7 +70,7 @@ class BooksTable extends React.Component<any, IBooksTableState> {
 
     public render() {
         // const { classes } = this.props;
-        const { sorting, currentPage, pageSizes } = this.state;
+        const { sorting } = this.state;
         const { paginatedBooks } = bookStore;
         return (
             <React.Fragment>
@@ -90,20 +80,8 @@ class BooksTable extends React.Component<any, IBooksTableState> {
                         sorting={sorting}
                         onSortingChange={this.changeSorting}
                     />
-                    <PagingState
-                        currentPage={currentPage}
-                        onCurrentPageChange={this.changeCurrentPage}
-                        pageSize={pageSizes[0]}
-                    // onPageSizeChange={this.changePageSize}
-                    />
-                    <CustomPaging
-                        totalCount={2}
-                    />
                     <Table />
                     <TableHeaderRow showSortingControls />
-                    <PagingPanel
-                        pageSizes={pageSizes}
-                    />
                 </Grid>
                 {/* <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"></link>
                 <MaterialTable

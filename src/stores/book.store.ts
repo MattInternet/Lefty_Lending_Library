@@ -70,6 +70,7 @@ export class BookStore{
     getNextPaginatedBooks = async() => {
         client.books.nextFilteredBooks(this.onPaginatedBooksChanged);
     }
+    
     getPreviousPaginatedBooks = async() => {
         client.books.previousFilteredBooks(this.onPaginatedBooksChanged);
     }

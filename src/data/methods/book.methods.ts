@@ -7,8 +7,8 @@ import { PaginationParameters } from "data";
 export class BookMethods {
     private _storage: firebase.firestore.Firestore;
     private _bookSerializer: TypedJSON<Book>;
-    private _booksByLenderSubscription: ()=> any;
-    private _filteredBooksSubscription: ()=> any;
+    private _booksByLenderSubscription: () => any;
+    private _filteredBooksSubscription: () => any;
 
     constructor(storage: firebase.firestore.Firestore) {
         this._storage = storage;
@@ -27,15 +27,16 @@ export class BookMethods {
         await this._storage.collection(Collections.BOOKS_COLLECTION).doc(newBook.isbn13).set({ ...newBook });
     }
 
-    public unsubscribeBooksByLender = () => {
-        if(this._booksByLenderSubscription){
-            this._booksByLenderSubscription();
-        }
+    public async addLenderInfo(isbn13: string, userId: string, lenderBookInfo: BookLenderInfo): Promise<void> {
+        await this._storage.collection(Collections.BOOKS_COLLECTION).doc(isbn13).update({
+            Lenders: firebase.firestore.FieldValue.arrayUnion(userId)
+        })
+        await this._storage.collection(Collections.BOOKS_COLLECTION).doc(isbn13).collection(Collections.LENDERBOOKINFOS_COLLECTION).doc(userId).set({ ...lenderBookInfo });
     }
 
-    public unsubscribeFilteredBooks = () => {
-        if(this._filteredBooksSubscription){
-            this._filteredBooksSubscription();
+    public unsubscribeBooksByLender = () => {
+        if (this._booksByLenderSubscription) {
+            this._booksByLenderSubscription();
         }
     }
 
@@ -55,81 +56,92 @@ export class BookMethods {
         });
     }
 
+    //#region FilteredBooks
+
     private filteredBooksQuery: any;
     private filteredBooksCursors: any;
     private filteredBooksCurrentPage: number;
     private currentPaginationParameters: PaginationParameters;
     private isLastPage: boolean;
 
-    public previousFilteredBooks = async(onFilteredBooksChanged: (books: Book[]) => any) => {
-        if(this.filteredBooksCurrentPage <= 0){
+    public previousFilteredBooks = async (onFilteredBooksChanged: (books: Book[]) => any) => {
+        if (this.filteredBooksCurrentPage <= 0) {
             return;
         }
 
-        this.filteredBooksCurrentPage = this.filteredBooksCurrentPage-1;
-        
-        if(this.filteredBooksCurrentPage === 0){
+        this.filteredBooksCurrentPage = this.filteredBooksCurrentPage - 1;
+
+        if (this.filteredBooksCurrentPage === 0) {
             await this.subscribeToFilteredBooks(onFilteredBooksChanged, this.currentPaginationParameters);
             return;
         }
 
         //unsubscribe if we are subscribed...
-        if(this._filteredBooksSubscription){
+        if (this._filteredBooksSubscription) {
             this._filteredBooksSubscription();
         }
 
-        this._filteredBooksSubscription = this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage-1]).onSnapshot((data) => {
-            this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length-1];
-            let books =this.parseBooksFromDocs(data.docs);
+        this._filteredBooksSubscription = this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage - 1]).onSnapshot((data) => {
+            this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length - 1];
+            let books = this.parseBooksFromDocs(data.docs);
             this.isLastPage = books.length < 5;//Should be pagination.pageSize
             onFilteredBooksChanged(books);
         });
     };
 
-    public nextFilteredBooks = async(onFilteredBooksChanged: (books: Book[]) => any) => {
-        if(this.isLastPage){
+    public nextFilteredBooks = async (onFilteredBooksChanged: (books: Book[]) => any) => {
+        if (this.isLastPage) {
             return;
         }
 
         //unsubscribe if we are subscribed...
-        if(this._filteredBooksSubscription){
+        if (this._filteredBooksSubscription) {
             this._filteredBooksSubscription();
         }
 
         this._filteredBooksSubscription = this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage]).onSnapshot((data) => {
-            this.filteredBooksCurrentPage = this.filteredBooksCurrentPage+1;
-            this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length-1];
-            let books =this.parseBooksFromDocs(data.docs);
+            this.filteredBooksCurrentPage = this.filteredBooksCurrentPage + 1;
+            this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length - 1];
+            let books = this.parseBooksFromDocs(data.docs);
             this.isLastPage = books.length < 5;//Should be pagination.pageSize
             onFilteredBooksChanged(books);
         });
     };
 
-    public subscribeToFilteredBooks = async(onFilteredBooksChanged: (books: Book[]) => any, pagination: PaginationParameters) => {
+    public subscribeToFilteredBooks = async (onFilteredBooksChanged: (books: Book[]) => any, pagination: PaginationParameters) => {
         this.currentPaginationParameters = pagination;
         this.filteredBooksCursors = [];
         this.filteredBooksCurrentPage = 0;
 
         this.filteredBooksQuery = this._storage.collection(Collections.BOOKS_COLLECTION);
-        if(this.currentPaginationParameters.sort){
+        if (this.currentPaginationParameters.sort) {
             this.filteredBooksQuery = this.filteredBooksQuery.orderBy(this.currentPaginationParameters.sort.columnName, this.currentPaginationParameters.sort.direction);
         }
         this.filteredBooksQuery = this.filteredBooksQuery.limit(5); //Should be pagination.pageSize
-        
+
         //unsubscribe if we are subscribed...
-        if(this._filteredBooksSubscription){
+        if (this._filteredBooksSubscription) {
             this._filteredBooksSubscription();
         }
 
         this._filteredBooksSubscription = this.filteredBooksQuery.onSnapshot((data) => {
-            this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length-1];
-            let books =this.parseBooksFromDocs(data.docs);
+            this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length - 1];
+            let books = this.parseBooksFromDocs(data.docs);
             this.isLastPage = books.length < 5;//Should be pagination.pageSize
             onFilteredBooksChanged(books);
         });
     }
 
-    private parseBooksFromDocs(docs: any): Book[]{
+    public unsubscribeFilteredBooks = () => {
+        if (this._filteredBooksSubscription) {
+            this._filteredBooksSubscription();
+        }
+    }
+    //#endregion
+
+    //#region private
+
+    private parseBooksFromDocs(docs: any): Book[] {
         let books: Book[] = [];
         docs.forEach((doc) => {
             let parsedBook: Book | undefined = this._bookSerializer.parse(doc.data());
@@ -140,10 +152,5 @@ export class BookMethods {
         return books;
     }
 
-    public async addLenderInfo(isbn13: string, userId: string, lenderBookInfo: BookLenderInfo): Promise<void> {
-        await this._storage.collection(Collections.BOOKS_COLLECTION).doc(isbn13).update({
-            Lenders: firebase.firestore.FieldValue.arrayUnion(userId)
-        })
-        await this._storage.collection(Collections.BOOKS_COLLECTION).doc(isbn13).collection(Collections.LENDERBOOKINFOS_COLLECTION).doc(userId).set({ ...lenderBookInfo });
-    }
+    //#endregion
 }
