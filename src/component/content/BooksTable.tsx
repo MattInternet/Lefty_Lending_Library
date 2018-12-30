@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { withStyles, Button } from '@material-ui/core';
+import { withStyles } from '@material-ui/core';
 // import { bookStore } from 'stores';
 import { inject, observer } from 'mobx-react';
 
@@ -88,7 +88,7 @@ class BooksTable extends React.Component<any, IBooksTableState> {
     public render() {
         // const { classes } = this.props;
         const { sorting, pageSize } = this.state;
-        const { paginatedBooks } = bookStore;
+        const { paginatedBooks, paginatedBooksIsFirstPage, paginatedBooksIsLastPage } = bookStore;
         return (
             <React.Fragment>
 
@@ -100,7 +100,13 @@ class BooksTable extends React.Component<any, IBooksTableState> {
                     <Table />
                     <TableHeaderRow showSortingControls />
                 </Grid>
-                <PaginationControls pageSizeOptions={[5,10,15,20,25,50]} pageSize={pageSize} onPageSizeChanged={this.changePageSize} onChangePage={this.changePage}/>
+                <PaginationControls
+                pageSizeOptions={[5,10,15,20,25,50]}
+                pageSize={pageSize}
+                onPageSizeChanged={this.changePageSize}
+                onChangePage={this.changePage}
+                isFirstPage={paginatedBooksIsFirstPage}
+                isLastPage={paginatedBooksIsLastPage}/>
                 
                 {/* <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"></link>
                 <MaterialTable
@@ -135,8 +141,6 @@ class BooksTable extends React.Component<any, IBooksTableState> {
                     ]}
                     data={filteredBooks || emptyBooks}
                 /> */}
-                <Button onClick={bookStore.getPreviousPaginatedBooks}>Previous</Button>
-                <Button onClick={bookStore.getNextPaginatedBooks}>NEXT</Button>
             </React.Fragment>
         );
     }

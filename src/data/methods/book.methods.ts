@@ -63,49 +63,61 @@ export class BookMethods {
     private filteredBooksCurrentPage: number;
     private currentPaginationParameters: PaginationParameters;
     private isLastPage: boolean;
+    private isFirstPage: boolean;
+    private onIsFirstOrLastPageChagned: (isFirstPage: boolean, isLastPage: boolean)=>any;
 
-    public previousFilteredBooks = async (onFilteredBooksChanged: (books: Book[]) => any) => {
+    //Gets the previous page of books. Returns true if this is the first page, false otherwise.
+    public previousFilteredBooks = async (onFilteredBooksChanged: (books: Book[]) => any) : Promise<boolean> => {
         if (this.filteredBooksCurrentPage <= 0) {
-            return;
+            return true;
         }
 
         this.filteredBooksCurrentPage = this.filteredBooksCurrentPage - 1;
 
         if (this.filteredBooksCurrentPage === 0) {
-            await this.subscribeToFilteredBooks(onFilteredBooksChanged, this.currentPaginationParameters);
-            return;
+            await this.subscribeToFilteredBooks(onFilteredBooksChanged, this.currentPaginationParameters, this.onIsFirstOrLastPageChagned);
+            return true;
         }
 
         this._filteredBooksSubscription = this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage - 1]).onSnapshot((data) => {
             this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length - 1];
             let books = this.parseBooksFromDocs(data.docs);
             this.isLastPage = books.length < this.currentPaginationParameters.pageSize;
+            this.onIsFirstOrLastPageChagned(this.isFirstPage, this.isLastPage);
             onFilteredBooksChanged(books);
         });
+        return false;
     };
 
+    //Gets the next page of books. Returns true if this is the last page, false otherwise.
     public nextFilteredBooks = async (onFilteredBooksChanged: (books: Book[]) => any) => {
         if (this.isLastPage) {
             return;
         }
+        this.isFirstPage = false;
 
         this._filteredBooksSubscription = this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage]).onSnapshot((data) => {
             if(data.docs.length === 0){
                 this.isLastPage = true;
+                this.onIsFirstOrLastPageChagned(this.isFirstPage, this.isLastPage);
                 return;
             }
             this.filteredBooksCurrentPage = this.filteredBooksCurrentPage + 1;
             this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length - 1];
             let books = this.parseBooksFromDocs(data.docs);
             this.isLastPage = books.length < this.currentPaginationParameters.pageSize;
+            this.onIsFirstOrLastPageChagned(this.isFirstPage, this.isLastPage);
             onFilteredBooksChanged(books);
+            return;
         });
     };
 
-    public subscribeToFilteredBooks = async (onFilteredBooksChanged: (books: Book[]) => any, pagination: PaginationParameters) => {
+    public subscribeToFilteredBooks = async (onFilteredBooksChanged: (books: Book[]) => any, pagination: PaginationParameters, onIsFirstOrLastPageChagned: (isFirstPage: boolean, isLastPage: boolean) => any) => {
         this.currentPaginationParameters = pagination;
         this.filteredBooksCursors = [];
         this.filteredBooksCurrentPage = 0;
+        this.onIsFirstOrLastPageChagned = onIsFirstOrLastPageChagned;
+        this.isFirstPage = true;
 
         this.filteredBooksQuery = this._storage.collection(Collections.BOOKS_COLLECTION);
         if (this.currentPaginationParameters.sort) {
@@ -122,6 +134,7 @@ export class BookMethods {
             this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length - 1];
             let books = this.parseBooksFromDocs(data.docs);
             this.isLastPage = books.length < this.currentPaginationParameters.pageSize;
+            this.onIsFirstOrLastPageChagned(this.isFirstPage, this.isLastPage);
             onFilteredBooksChanged(books);
         });
     }

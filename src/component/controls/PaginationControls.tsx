@@ -15,6 +15,8 @@ export interface IPaginationControlsProps {
     classes: any;
     pageSizeOptions: number[];
     pageSize: number;
+    isFirstPage: boolean;
+    isLastPage: boolean;
     onPageSizeChanged: (newPageSize: number)=>any;
     onChangePage: (nextPage: boolean)=>any;
 }
@@ -36,7 +38,9 @@ class PaginationControls extends React.Component<IPaginationControlsProps, IPagi
     public render() {
         const { classes,
             pageSizeOptions,
-            pageSize
+            pageSize,
+            isFirstPage,
+            isLastPage
         } = this.props;
 
         return (
@@ -46,10 +50,10 @@ class PaginationControls extends React.Component<IPaginationControlsProps, IPagi
                         return <MenuItem key={data} value={data}>{data}</MenuItem>
                     })}
                 </Select>
-                <IconButton onClick={()=>this.handleChangePage(false)}>
+                <IconButton disabled={isFirstPage} onClick={()=>this.handleChangePage(false)}>
                     <NavigateBefore/>
                 </IconButton>
-                <IconButton onClick={()=>this.handleChangePage(true)}>
+                <IconButton disabled={isLastPage} onClick={()=>this.handleChangePage(true)}>
                     <NavigateNext/>
                 </IconButton>
             </div>);

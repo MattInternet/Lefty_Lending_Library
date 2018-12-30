@@ -59,19 +59,32 @@ export class BookStore{
     @observable
     public paginatedBooks: Book[] | null;
 
+    @observable
+    public paginatedBooksIsFirstPage: boolean;
+
+    @observable
+    public paginatedBooksIsLastPage: boolean;
+
     setPaginatedBooksParameters = async(pagination: PaginationParameters|null) =>{
         if(pagination){
-            client.books.subscribeToFilteredBooks(this.onPaginatedBooksChanged, pagination);
+            this.paginatedBooksIsFirstPage = true;
+            this.paginatedBooksIsLastPage = false;
+            client.books.subscribeToFilteredBooks(this.onPaginatedBooksChanged, pagination, this.onIsFirstOrLastPageChagned);
             return;
         }
         client.books.unsubscribeFilteredBooks();
     }
 
-    getNextPaginatedBooks = async() => {
+    onIsFirstOrLastPageChagned = (isFirstPage: boolean, isLastPage: boolean) => {
+        this.paginatedBooksIsFirstPage = isFirstPage;
+        this.paginatedBooksIsLastPage = isLastPage;
+    }
+
+    getNextPaginatedBooks = () => {
         client.books.nextFilteredBooks(this.onPaginatedBooksChanged);
     }
     
-    getPreviousPaginatedBooks = async() => {
+    getPreviousPaginatedBooks = () => {
         client.books.previousFilteredBooks(this.onPaginatedBooksChanged);
     }
     //#endregion
