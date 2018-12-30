@@ -79,7 +79,7 @@ export class BookMethods {
         this._filteredBooksSubscription = this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage - 1]).onSnapshot((data) => {
             this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length - 1];
             let books = this.parseBooksFromDocs(data.docs);
-            this.isLastPage = books.length < 5;//Should be pagination.pageSize
+            this.isLastPage = books.length < this.currentPaginationParameters.pageSize;
             onFilteredBooksChanged(books);
         });
     };
@@ -97,7 +97,7 @@ export class BookMethods {
             this.filteredBooksCurrentPage = this.filteredBooksCurrentPage + 1;
             this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length - 1];
             let books = this.parseBooksFromDocs(data.docs);
-            this.isLastPage = books.length < 5;//Should be pagination.pageSize
+            this.isLastPage = books.length < this.currentPaginationParameters.pageSize;
             onFilteredBooksChanged(books);
         });
     };
@@ -111,17 +111,17 @@ export class BookMethods {
         if (this.currentPaginationParameters.sort) {
             this.filteredBooksQuery = this.filteredBooksQuery.orderBy(this.currentPaginationParameters.sort.columnName, this.currentPaginationParameters.sort.direction);
         }
-        this.filteredBooksQuery = this.filteredBooksQuery.limit(5); //Should be pagination.pageSize
+        this.filteredBooksQuery = this.filteredBooksQuery.limit(this.currentPaginationParameters.pageSize);
 
         //unsubscribe if we are subscribed...
         if (this._filteredBooksSubscription) {
             this._filteredBooksSubscription();
         }
-
+        
         this._filteredBooksSubscription = this.filteredBooksQuery.onSnapshot((data) => {
             this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length - 1];
             let books = this.parseBooksFromDocs(data.docs);
-            this.isLastPage = books.length < 5;//Should be pagination.pageSize
+            this.isLastPage = books.length < this.currentPaginationParameters.pageSize;
             onFilteredBooksChanged(books);
         });
     }

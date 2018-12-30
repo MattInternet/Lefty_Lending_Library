@@ -11,6 +11,7 @@ import {
 } from '@devexpress/dx-react-grid';
 import { bookStore } from 'stores';
 import { PaginationParameters } from 'data';
+import { PaginationControls } from 'component/controls';
 
 const styles: any = (theme: any) => ({
     authorChip: {
@@ -20,17 +21,18 @@ const styles: any = (theme: any) => ({
 
 interface IBooksTableState {
     sorting: Sorting[],
+    pageSize: number;
 }
 
 @inject('bookStore')
 @observer
 class BooksTable extends React.Component<any, IBooksTableState> {
-
     constructor(props: any) {
         super(props);
 
         this.state = {
-            sorting: [{ columnName: "Title", direction: 'desc' }]
+            sorting: [{ columnName: "Title", direction: 'desc' }],
+            pageSize: 5
         }
     }
 
@@ -53,13 +55,20 @@ class BooksTable extends React.Component<any, IBooksTableState> {
         });
     }
 
+    changePageSize = (newPageSize) => {
+        this.setState({
+            pageSize: newPageSize
+        });
+    }
+
     generatePaginationParameters() {
-        const { sorting } = this.state;
-        let paginationHelper: PaginationParameters = { sort: sorting[0] };
+        const { sorting, pageSize } = this.state;
+        let paginationHelper: PaginationParameters = { sort: sorting[0], pageSize: pageSize };
         return paginationHelper;
     }
 
     oldpaginationParams: PaginationParameters;
+
     updateData = () => {
         let paginationParams = this.generatePaginationParameters();
         if (JSON.stringify(paginationParams) != JSON.stringify(this.oldpaginationParams)) {
@@ -68,9 +77,17 @@ class BooksTable extends React.Component<any, IBooksTableState> {
         }
     }
 
+    changePage = async (nextPage) => {
+        if(nextPage){
+            await bookStore.getNextPaginatedBooks();
+            return;
+        }
+        await bookStore.getPreviousPaginatedBooks();
+    }
+
     public render() {
         // const { classes } = this.props;
-        const { sorting } = this.state;
+        const { sorting, pageSize } = this.state;
         const { paginatedBooks } = bookStore;
         return (
             <React.Fragment>
@@ -83,6 +100,8 @@ class BooksTable extends React.Component<any, IBooksTableState> {
                     <Table />
                     <TableHeaderRow showSortingControls />
                 </Grid>
+                <PaginationControls pageSizeOptions={[5,10,15,20,25,50]} pageSize={pageSize} onPageSizeChanged={this.changePageSize} onChangePage={this.changePage}/>
+                
                 {/* <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"></link>
                 <MaterialTable
                     title="Demo Title"
