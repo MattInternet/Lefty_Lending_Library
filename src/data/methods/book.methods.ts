@@ -55,6 +55,12 @@ export class BookMethods {
         });
     }
 
+    private filteredBooksQuery: any;
+    private filteredBooksCursors: any;
+    private filteredBooksCurrentPage: number;
+    private currentPaginationParameters: PaginationParameters;
+    private isLastPage: boolean;
+
     public previousFilteredBooks = async(onFilteredBooksChanged: (books: Book[]) => any) => {
         if(this.filteredBooksCurrentPage <= 0){
             return;
@@ -67,26 +73,37 @@ export class BookMethods {
             return;
         }
 
-        this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage-1]).onSnapshot((data) => {
+        //unsubscribe if we are subscribed...
+        if(this._filteredBooksSubscription){
+            this._filteredBooksSubscription();
+        }
+
+        this._filteredBooksSubscription = this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage-1]).onSnapshot((data) => {
             this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length-1];
-            let books =this.parseBooks(data.docs);
+            let books =this.parseBooksFromDocs(data.docs);
+            this.isLastPage = books.length < 5;//Should be pagination.pageSize
             onFilteredBooksChanged(books);
         });
     };
 
     public nextFilteredBooks = async(onFilteredBooksChanged: (books: Book[]) => any) => {
-        this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage]).onSnapshot((data) => {
+        if(this.isLastPage){
+            return;
+        }
+
+        //unsubscribe if we are subscribed...
+        if(this._filteredBooksSubscription){
+            this._filteredBooksSubscription();
+        }
+
+        this._filteredBooksSubscription = this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage]).onSnapshot((data) => {
             this.filteredBooksCurrentPage = this.filteredBooksCurrentPage+1;
             this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length-1];
-            let books =this.parseBooks(data.docs);
+            let books =this.parseBooksFromDocs(data.docs);
+            this.isLastPage = books.length < 5;//Should be pagination.pageSize
             onFilteredBooksChanged(books);
         });
     };
-
-    private filteredBooksQuery: any;
-    private filteredBooksCursors: any;
-    private filteredBooksCurrentPage: number;
-    private currentPaginationParameters: PaginationParameters;
 
     public subscribeToFilteredBooks = async(onFilteredBooksChanged: (books: Book[]) => any, pagination: PaginationParameters) => {
         this.currentPaginationParameters = pagination;
@@ -106,12 +123,13 @@ export class BookMethods {
 
         this._filteredBooksSubscription = this.filteredBooksQuery.onSnapshot((data) => {
             this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length-1];
-            let books =this.parseBooks(data.docs);
+            let books =this.parseBooksFromDocs(data.docs);
+            this.isLastPage = books.length < 5;//Should be pagination.pageSize
             onFilteredBooksChanged(books);
         });
     }
 
-    private parseBooks(docs: any): Book[]{
+    private parseBooksFromDocs(docs: any): Book[]{
         let books: Book[] = [];
         docs.forEach((doc) => {
             let parsedBook: Book | undefined = this._bookSerializer.parse(doc.data());
