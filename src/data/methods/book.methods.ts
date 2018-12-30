@@ -2,6 +2,7 @@ import { Collections } from "data/collections";
 import { Book, BookLenderInfo } from "data/models";
 import { TypedJSON } from "typedjson";
 import * as firebase from "firebase";
+import { PaginationParameters } from "data";
 
 export class BookMethods {
     private _storage: firebase.firestore.Firestore;
@@ -54,19 +55,71 @@ export class BookMethods {
         });
     }
 
-    //Currently this is not 'filtered' at all, its just all the books. Ill do that when i handle pagination 😁
-    //https://devexpress.github.io/devextreme-reactive/react/grid/ 👈🏻Thats free for non commercial 😎
-    public subscribeToFilteredBooks = async(onFilteredBooksChanged: (books: Book[]) => any) => {
-        this._filteredBooksSubscription = this._storage.collection(Collections.BOOKS_COLLECTION).onSnapshot((data) => {
-            let books: Book[] = [];
-            data.docs.forEach((doc) => {
-                let parsedBook: Book | undefined = this._bookSerializer.parse(doc.data());
-                if (parsedBook) {
-                    books.push(parsedBook);
-                }
-            });
+    public previousFilteredBooks = async(onFilteredBooksChanged: (books: Book[]) => any) => {
+        if(this.filteredBooksCurrentPage <= 0){
+            return;
+        }
+
+        this.filteredBooksCurrentPage = this.filteredBooksCurrentPage-1;
+        
+        if(this.filteredBooksCurrentPage === 0){
+            await this.subscribeToFilteredBooks(onFilteredBooksChanged, this.currentPaginationParameters);
+            return;
+        }
+
+        this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage-1]).onSnapshot((data) => {
+            this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length-1];
+            let books =this.parseBooks(data.docs);
             onFilteredBooksChanged(books);
         });
+    };
+
+    public nextFilteredBooks = async(onFilteredBooksChanged: (books: Book[]) => any) => {
+        this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage]).onSnapshot((data) => {
+            this.filteredBooksCurrentPage = this.filteredBooksCurrentPage+1;
+            this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length-1];
+            let books =this.parseBooks(data.docs);
+            onFilteredBooksChanged(books);
+        });
+    };
+
+    private filteredBooksQuery: any;
+    private filteredBooksCursors: any;
+    private filteredBooksCurrentPage: number;
+    private currentPaginationParameters: PaginationParameters;
+
+    public subscribeToFilteredBooks = async(onFilteredBooksChanged: (books: Book[]) => any, pagination: PaginationParameters) => {
+        this.currentPaginationParameters = pagination;
+        this.filteredBooksCursors = [];
+        this.filteredBooksCurrentPage = 0;
+
+        this.filteredBooksQuery = this._storage.collection(Collections.BOOKS_COLLECTION);
+        if(this.currentPaginationParameters.sort){
+            this.filteredBooksQuery = this.filteredBooksQuery.orderBy(this.currentPaginationParameters.sort.columnName, this.currentPaginationParameters.sort.direction);
+        }
+        this.filteredBooksQuery = this.filteredBooksQuery.limit(5); //Should be pagination.pageSize
+        
+        //unsubscribe if we are subscribed...
+        if(this._filteredBooksSubscription){
+            this._filteredBooksSubscription();
+        }
+
+        this._filteredBooksSubscription = this.filteredBooksQuery.onSnapshot((data) => {
+            this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length-1];
+            let books =this.parseBooks(data.docs);
+            onFilteredBooksChanged(books);
+        });
+    }
+
+    private parseBooks(docs: any): Book[]{
+        let books: Book[] = [];
+        docs.forEach((doc) => {
+            let parsedBook: Book | undefined = this._bookSerializer.parse(doc.data());
+            if (parsedBook) {
+                books.push(parsedBook);
+            }
+        });
+        return books;
     }
 
     public async addLenderInfo(isbn13: string, userId: string, lenderBookInfo: BookLenderInfo): Promise<void> {

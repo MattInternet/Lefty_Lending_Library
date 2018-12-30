@@ -1,4 +1,4 @@
-import { client } from "data";
+import { client, PaginationParameters } from "data";
 import { Book, BookLenderInfo, User } from "data/models";
 import { pubsub, USER_AUTHENTICATED } from "pubsub";
 import { observable } from "mobx";
@@ -12,7 +12,7 @@ export class BookSearchResult{
 export class BookStore{
     constructor() {
         pubsub.subscribe(USER_AUTHENTICATED, this.onUserAuthenticated);
-        this.setCurrentBooksParameters();
+        this.setPaginatedBooksParameters(null);
     }
 
     @observable
@@ -57,17 +57,28 @@ export class BookStore{
     }
 
     @observable
-    public filteredBooks: Book[] | null;
+    public paginatedBooks: Book[] | null;
 
-    setCurrentBooksParameters = async() =>{
-        client.books.subscribeToFilteredBooks(this.onBooksChanged);
+    setPaginatedBooksParameters = async(pagination: PaginationParameters|null) =>{
+        if(pagination){
+            client.books.subscribeToFilteredBooks(this.onPaginatedBooksChanged, pagination);
+            return;
+        }
+        client.books.unsubscribeFilteredBooks();
+    }
+
+    getNextPaginatedBooks = async() => {
+        client.books.nextFilteredBooks(this.onPaginatedBooksChanged);
+    }
+    getPreviousPaginatedBooks = async() => {
+        client.books.previousFilteredBooks(this.onPaginatedBooksChanged);
     }
     //#endregion
 
     //#region private
 
-    onBooksChanged = async(books:Book[])=>{
-        this.filteredBooks = books;
+    onPaginatedBooksChanged = async(books:Book[])=>{
+        this.paginatedBooks = books;
     }
 
     onUserAuthenticated = async(USER_AUTHENTICATED: string, user: User|null) => {
