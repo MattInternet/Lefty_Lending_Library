@@ -45,7 +45,8 @@ export class Book implements IBook {
         : null;
     }
 
-    @computed get ShortPublishedDate(): string|null{
+    @computed
+    public get ShortPublishedDate(): string|null{
         return this.PublishedDate ? moment(this.PublishedDate).format("MMM Do YYYY")
         : null;
     }

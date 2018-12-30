@@ -1,13 +1,14 @@
 import * as React from 'react';
-import { withStyles } from '@material-ui/core';
+import { withStyles, Chip } from '@material-ui/core';
 // import { bookStore } from 'stores';
 import { inject, observer } from 'mobx-react';
+import PersonIcon from '@material-ui/icons/Person';
 
 import {
-    Grid, Table, TableHeaderRow
+    Grid, Table, TableHeaderRow, TableRowDetail
 } from '@devexpress/dx-react-grid-material-ui';
 import {
-    SortingState, Sorting
+    SortingState, Sorting, RowDetailState
 } from '@devexpress/dx-react-grid';
 import { bookStore } from 'stores';
 import { PaginationParameters } from 'data';
@@ -23,6 +24,15 @@ interface IBooksTableState {
     sorting: Sorting[],
     pageSize: number;
 }
+
+const RowDetail = ({ row }) => (
+    <div>
+        Details for
+      {' '}
+        {row.Title}
+        {' '}
+    </div>
+);
 
 @inject('bookStore')
 @observer
@@ -46,6 +56,17 @@ class BooksTable extends React.Component<any, IBooksTableState> {
 
     columns = [
         { name: 'Title', title: 'Title' },
+        { name: 'Publisher', title: 'Publisher' },
+        { name: 'PublishedDate', title: 'Published', getCellValue: row => (row.PublishedDate ? row.ShortPublishedDate : null) },
+        {
+            name: 'Authors', title: 'Author(s)', getCellValue: row => (row.Authors ? row.Authors.map(data => {
+                return <Chip
+                    key={data}
+                    icon={<PersonIcon />}
+                    label={data}
+                />
+            }) : null)
+        },
         { name: 'PageCount', title: 'Pages' }
     ];
 
@@ -78,7 +99,7 @@ class BooksTable extends React.Component<any, IBooksTableState> {
     }
 
     changePage = async (nextPage) => {
-        if(nextPage){
+        if (nextPage) {
             await bookStore.getNextPaginatedBooks();
             return;
         }
@@ -93,21 +114,26 @@ class BooksTable extends React.Component<any, IBooksTableState> {
             <React.Fragment>
 
                 <Grid columns={this.columns} rows={paginatedBooks || []}>
+                    <RowDetailState/>
                     <SortingState
                         sorting={sorting}
                         onSortingChange={this.changeSorting}
                     />
+
                     <Table />
                     <TableHeaderRow showSortingControls />
+                    <TableRowDetail
+                        contentComponent={RowDetail}
+                    />
                 </Grid>
                 <PaginationControls
-                pageSizeOptions={[5,10,15,20,25,50]}
-                pageSize={pageSize}
-                onPageSizeChanged={this.changePageSize}
-                onChangePage={this.changePage}
-                isFirstPage={paginatedBooksIsFirstPage}
-                isLastPage={paginatedBooksIsLastPage}/>
-                
+                    pageSizeOptions={[5, 10, 15, 20, 25, 50]}
+                    pageSize={pageSize}
+                    onPageSizeChanged={this.changePageSize}
+                    onChangePage={this.changePage}
+                    isFirstPage={paginatedBooksIsFirstPage}
+                    isLastPage={paginatedBooksIsLastPage} />
+
                 {/* <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"></link>
                 <MaterialTable
                     title="Demo Title"
