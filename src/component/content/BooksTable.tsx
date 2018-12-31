@@ -109,7 +109,7 @@ class BooksTable extends React.Component<any, IBooksTableState> {
     public render() {
         // const { classes } = this.props;
         const { sorting, pageSize } = this.state;
-        const { paginatedBooks, paginatedBooksIsFirstPage, paginatedBooksIsLastPage } = bookStore;
+        const { paginatedBooks, isFirstPaginatedBooksPage, isLastPaginatedBooksPage } = bookStore;
         return (
             <React.Fragment>
 
@@ -131,8 +131,8 @@ class BooksTable extends React.Component<any, IBooksTableState> {
                     pageSize={pageSize}
                     onPageSizeChanged={this.changePageSize}
                     onChangePage={this.changePage}
-                    isFirstPage={paginatedBooksIsFirstPage}
-                    isLastPage={paginatedBooksIsLastPage} />
+                    isFirstPage={isFirstPaginatedBooksPage}
+                    isLastPage={isLastPaginatedBooksPage} />
 
                 {/* <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"></link>
                 <MaterialTable
