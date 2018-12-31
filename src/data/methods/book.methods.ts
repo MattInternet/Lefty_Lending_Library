@@ -2,18 +2,11 @@ import { Collections } from "data/collections";
 import { Book, BookLenderInfo } from "data/models";
 import { TypedJSON } from "typedjson";
 import * as firebase from "firebase";
-import { PaginationParameters } from "data";
 
-//TODO: Move this into its own file 😜
-export interface IClientMethods{
-    
-}
-
-export class BookMethods implements IClientMethods{
+export class BookMethods{
     private _storage: firebase.firestore.Firestore;
     private _bookSerializer: TypedJSON<Book>;
     private _booksByLenderSubscription: () => any;
-    private _filteredBooksSubscription: () => any;
 
     constructor(storage: firebase.firestore.Firestore) {
         this._storage = storage;
@@ -60,109 +53,4 @@ export class BookMethods implements IClientMethods{
             onLenderBooksChanged(lenderBooks);
         });
     }
-
-    //#region FilteredBooks
-
-    private filteredBooksQuery: any;
-    private filteredBooksCursors: any;
-    private filteredBooksCurrentPage: number;
-    private currentPaginationParameters: PaginationParameters;
-    private isLastPage: boolean;
-    private isFirstPage: boolean;
-    private onIsFirstOrLastPageChagned: (isFirstPage: boolean, isLastPage: boolean)=>any;
-
-    //Gets the previous page of books. Returns true if this is the first page, false otherwise.
-    public previousFilteredBooks = async (onFilteredBooksChanged: (books: Book[]) => any) : Promise<boolean> => {
-        if (this.filteredBooksCurrentPage <= 0) {
-            return true;
-        }
-
-        this.filteredBooksCurrentPage = this.filteredBooksCurrentPage - 1;
-
-        if (this.filteredBooksCurrentPage === 0) {
-            await this.subscribeToFilteredBooks(onFilteredBooksChanged, this.currentPaginationParameters, this.onIsFirstOrLastPageChagned);
-            return true;
-        }
-
-        this._filteredBooksSubscription = this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage - 1]).onSnapshot((data) => {
-            this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length - 1];
-            let books = this.parseBooksFromDocs(data.docs);
-            this.isLastPage = books.length < this.currentPaginationParameters.pageSize;
-            this.onIsFirstOrLastPageChagned(this.isFirstPage, this.isLastPage);
-            onFilteredBooksChanged(books);
-        });
-        return false;
-    };
-
-    //Gets the next page of books. Returns true if this is the last page, false otherwise.
-    public nextFilteredBooks = async (onFilteredBooksChanged: (books: Book[]) => any) => {
-        if (this.isLastPage) {
-            return;
-        }
-        this.isFirstPage = false;
-
-        this._filteredBooksSubscription = this.filteredBooksQuery.startAfter(this.filteredBooksCursors[this.filteredBooksCurrentPage]).onSnapshot((data) => {
-            if(data.docs.length === 0){
-                this.isLastPage = true;
-                this.onIsFirstOrLastPageChagned(this.isFirstPage, this.isLastPage);
-                return;
-            }
-            this.filteredBooksCurrentPage = this.filteredBooksCurrentPage + 1;
-            this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length - 1];
-            let books = this.parseBooksFromDocs(data.docs);
-            this.isLastPage = books.length < this.currentPaginationParameters.pageSize;
-            this.onIsFirstOrLastPageChagned(this.isFirstPage, this.isLastPage);
-            onFilteredBooksChanged(books);
-            return;
-        });
-    };
-
-    public subscribeToFilteredBooks = async (onFilteredBooksChanged: (books: Book[]) => any, pagination: PaginationParameters, onIsFirstOrLastPageChagned: (isFirstPage: boolean, isLastPage: boolean) => any) => {
-        this.currentPaginationParameters = pagination;
-        this.filteredBooksCursors = [];
-        this.filteredBooksCurrentPage = 0;
-        this.onIsFirstOrLastPageChagned = onIsFirstOrLastPageChagned;
-        this.isFirstPage = true;
-
-        this.filteredBooksQuery = this._storage.collection(Collections.BOOKS_COLLECTION);
-        if (this.currentPaginationParameters.sort) {
-            this.filteredBooksQuery = this.filteredBooksQuery.orderBy(this.currentPaginationParameters.sort.columnName, this.currentPaginationParameters.sort.direction);
-        }
-        this.filteredBooksQuery = this.filteredBooksQuery.limit(this.currentPaginationParameters.pageSize);
-
-        //unsubscribe if we are subscribed...
-        if (this._filteredBooksSubscription) {
-            this._filteredBooksSubscription();
-        }
-        
-        this._filteredBooksSubscription = this.filteredBooksQuery.onSnapshot((data) => {
-            this.filteredBooksCursors[this.filteredBooksCurrentPage] = data.docs[data.docs.length - 1];
-            let books = this.parseBooksFromDocs(data.docs);
-            this.isLastPage = books.length < this.currentPaginationParameters.pageSize;
-            this.onIsFirstOrLastPageChagned(this.isFirstPage, this.isLastPage);
-            onFilteredBooksChanged(books);
-        });
-    }
-
-    public unsubscribeFilteredBooks = () => {
-        if (this._filteredBooksSubscription) {
-            this._filteredBooksSubscription();
-        }
-    }
-    //#endregion
-
-    //#region private
-
-    private parseBooksFromDocs(docs: any): Book[] {
-        let books: Book[] = [];
-        docs.forEach((doc) => {
-            let parsedBook: Book | undefined = this._bookSerializer.parse(doc.data());
-            if (parsedBook) {
-                books.push(parsedBook);
-            }
-        });
-        return books;
-    }
-
-    //#endregion
 }

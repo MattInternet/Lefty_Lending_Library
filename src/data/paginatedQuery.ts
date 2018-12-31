@@ -12,6 +12,15 @@ export class PaginatedQuery<T>{
         this.setQueryParameters(parameters);
     }
 
+    @observable
+    public isFirstPage: boolean;
+
+    @observable
+    public isLastPage: boolean;
+
+    @observable
+    public paginatedCollection: any[];
+
     public previousPage = async () => {
         if(this._currentPage <= 0){
             return;
@@ -76,15 +85,6 @@ export class PaginatedQuery<T>{
             this.paginatedCollection = items;
         });
     }
-
-    @observable
-    public isFirstPage: boolean;
-
-    @observable
-    public isLastPage: boolean;
-
-    @observable
-    public paginatedCollection: any[];
 
     public shutDown = async():Promise<void> => {
         if (this._filteredQuerySubscription) {
