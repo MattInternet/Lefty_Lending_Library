@@ -25,10 +25,9 @@ export class PaginatedQuery<T>{
         }
 
         this._filteredQuerySubscription = this._filteredQuery.startAfter(this._cursors[this._currentPage -1]).onSnapshot((data)=> {
-            this._cursors[this._currentPage] = data.docs[data.docs.length -1];
-            this.isLastPage = data.docs.length < this._paginationParameters.pageSize;
-            let items = this.parseItemsFromDocs(data.docs);
-            // this.onIsFirstOrLastPageChagned(this.isFirstPage, this.isLastPage);
+            this._cursors[this._currentPage] = data.docs[data.docs.length -2];
+            this.isLastPage = data.docs.length < this._paginationParameters.pageSize+1;
+            let items = this.parseItemsFromDocs(data.docs.splice(0, Math.min(data.docs.length, this._paginationParameters.pageSize) ));
             this.paginatedCollection = items;
         })
     }
@@ -41,15 +40,13 @@ export class PaginatedQuery<T>{
         this._filteredQuerySubscription = this._filteredQuery.startAfter(this._cursors[this._currentPage]).onSnapshot((data)=>{
             if(data.docs.length === 0){
                 this.isLastPage = true;
-                // this.onIsFirstOrLastPageChagned(this.isFirstPage, this.isLastPage);
                 return;
             }
             this.isFirstPage = false;
             this._currentPage = this._currentPage + 1;
-            this._cursors[this._currentPage] = data.docs[data.docs.length - 1];
-            this.isLastPage = data.docs.length < this._paginationParameters.pageSize;
-            let items = this.parseItemsFromDocs(data.docs);
-            // this.onIsFirstOrLastPageChagned(this.isFirstPage, this.isLastPage);
+            this._cursors[this._currentPage] = data.docs[data.docs.length - 2];
+            this.isLastPage = data.docs.length < this._paginationParameters.pageSize+1;
+            let items = this.parseItemsFromDocs(data.docs.splice(0, Math.min(data.docs.length, this._paginationParameters.pageSize) ));
             this.paginatedCollection = items;
         })
     }
@@ -64,7 +61,7 @@ export class PaginatedQuery<T>{
         if(this._paginationParameters.sort){
             this._filteredQuery = this._filteredQuery.orderBy(this._paginationParameters.sort.columnName, this._paginationParameters.sort.direction)
         }
-        this._filteredQuery = this._filteredQuery.limit(this._paginationParameters.pageSize);
+        this._filteredQuery = this._filteredQuery.limit(this._paginationParameters.pageSize+1);
 
         //unsubscribe if we are subscribed...
         if (this._filteredQuerySubscription) {
@@ -72,10 +69,10 @@ export class PaginatedQuery<T>{
         }
 
         this._filteredQuerySubscription = this._filteredQuery.onSnapshot((data)=>{
-            this._cursors[this._currentPage] = data.docs[data.docs.length -1];
-            this.isLastPage = data.docs.length < this._paginationParameters.pageSize; //Maybe do some crazy shit like get 1 more that the page size, then set the curso one result behind to see if its rly the last page!?!?!? 🤯
-            let items = this.parseItemsFromDocs(data.docs);
-            //this.onIsFirstOrLastPageChagned(this.isFirstPage, this.isLastPage);
+            this._cursors[this._currentPage] = data.docs[data.docs.length - 2];
+            this.isLastPage = data.docs.length < this._paginationParameters.pageSize+1; //Maybe do some crazy shit like get 1 more that the page size, then set the curso one result behind to see if its rly the last page!?!?!? 🤯
+
+            let items = this.parseItemsFromDocs(data.docs.splice(0, Math.min(data.docs.length, this._paginationParameters.pageSize) ));
             this.paginatedCollection = items;
         });
     }

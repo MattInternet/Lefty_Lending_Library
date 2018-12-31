@@ -12,7 +12,6 @@ export class BookSearchResult{
 export class BookStore{
     constructor() {
         pubsub.subscribe(USER_AUTHENTICATED, this.onUserAuthenticated);
-        this.setPaginatedBooksParameters(null);
     }
 
     @observable
@@ -71,21 +70,10 @@ export class BookStore{
         return client.paginatedBooks.isFirstPage;
     }
 
-    @observable
-    public paginatedBooksIsFirstPage: boolean;
-
-    @observable
-    public paginatedBooksIsLastPage: boolean;
-
     setPaginatedBooksParameters = async(pagination: PaginationParameters|null) =>{
         if(pagination){
             client.paginatedBooks.setQueryParameters(pagination);
         }
-    }
-
-    onIsFirstOrLastPageChagned = (isFirstPage: boolean, isLastPage: boolean) => {
-        this.paginatedBooksIsFirstPage = isFirstPage;
-        this.paginatedBooksIsLastPage = isLastPage;
     }
 
     getNextPaginatedBooks = () => {
