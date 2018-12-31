@@ -4,7 +4,12 @@ import { TypedJSON } from "typedjson";
 import * as firebase from "firebase";
 import { PaginationParameters } from "data";
 
-export class BookMethods {
+//TODO: Move this into its own file 😜
+export interface IClientMethods{
+    
+}
+
+export class BookMethods implements IClientMethods{
     private _storage: firebase.firestore.Firestore;
     private _bookSerializer: TypedJSON<Book>;
     private _booksByLenderSubscription: () => any;

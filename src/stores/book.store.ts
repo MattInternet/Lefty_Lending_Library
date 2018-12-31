@@ -1,7 +1,7 @@
 import { client, PaginationParameters } from "data";
 import { Book, BookLenderInfo, User } from "data/models";
 import { pubsub, USER_AUTHENTICATED } from "pubsub";
-import { observable } from "mobx";
+import { observable, computed } from "mobx";
 
 //TODO: Move this to its own file...
 export class BookSearchResult{
@@ -56,8 +56,10 @@ export class BookStore{
         return isbn;
     }
 
-    @observable
-    public paginatedBooks: Book[] | null;
+    @computed
+    public get paginatedBooks(): Book[] | null{
+        return client.paginatedBooks.paginatedCollection;
+    }
 
     @observable
     public paginatedBooksIsFirstPage: boolean;
@@ -65,14 +67,20 @@ export class BookStore{
     @observable
     public paginatedBooksIsLastPage: boolean;
 
+    // setPaginatedBooksParameters = async(pagination: PaginationParameters|null) =>{
+    //     if(pagination){
+    //         this.paginatedBooksIsFirstPage = true;
+    //         this.paginatedBooksIsLastPage = false;
+    //         client.books.subscribeToFilteredBooks(this.onPaginatedBooksChanged, pagination, this.onIsFirstOrLastPageChagned);
+    //         return;
+    //     }
+    //     client.books.unsubscribeFilteredBooks();
+    // }
+
     setPaginatedBooksParameters = async(pagination: PaginationParameters|null) =>{
         if(pagination){
-            this.paginatedBooksIsFirstPage = true;
-            this.paginatedBooksIsLastPage = false;
-            client.books.subscribeToFilteredBooks(this.onPaginatedBooksChanged, pagination, this.onIsFirstOrLastPageChagned);
-            return;
+            client.paginatedBooks.setQueryParameters(pagination);
         }
-        client.books.unsubscribeFilteredBooks();
     }
 
     onIsFirstOrLastPageChagned = (isFirstPage: boolean, isLastPage: boolean) => {
@@ -81,18 +89,18 @@ export class BookStore{
     }
 
     getNextPaginatedBooks = () => {
-        client.books.nextFilteredBooks(this.onPaginatedBooksChanged);
+        client.paginatedBooks.nextPage();
     }
     
     getPreviousPaginatedBooks = () => {
-        client.books.previousFilteredBooks(this.onPaginatedBooksChanged);
+        client.paginatedBooks.previousPage();
     }
     //#endregion
 
     //#region private
 
     onPaginatedBooksChanged = async(books:Book[])=>{
-        this.paginatedBooks = books;
+        // this.paginatedBooks = books;
     }
 
     onUserAuthenticated = async(USER_AUTHENTICATED: string, user: User|null) => {
