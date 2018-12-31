@@ -2,6 +2,7 @@ import { PaginationParameters } from "./paginationParameters";
 import { observable } from "mobx";
 import { TypedJSON } from "typedjson";
 
+//Currently this doesnt actually let you 'Query' ironically. It lets you paginate and sort. But I plan to add the actual 'Queryness' to it 😅
 export class PaginatedQuery<T>{
 
 //#region public
@@ -33,7 +34,7 @@ export class PaginatedQuery<T>{
             return;
         }
 
-        this._filteredQuerySubscription = this._filteredQuery.startAfter(this._cursors[this._currentPage -1]).onSnapshot((data)=> {
+        this._paginatedQuerySubscription = this._filteredQuery.startAfter(this._cursors[this._currentPage -1]).onSnapshot((data)=> {
             this._cursors[this._currentPage] = data.docs[data.docs.length -2];
             this.isLastPage = data.docs.length < this._paginationParameters.pageSize+1;
             let items = this.parseItemsFromDocs(data.docs.splice(0, Math.min(data.docs.length, this._paginationParameters.pageSize) ));
@@ -46,7 +47,7 @@ export class PaginatedQuery<T>{
             return;
         }
         
-        this._filteredQuerySubscription = this._filteredQuery.startAfter(this._cursors[this._currentPage]).onSnapshot((data)=>{
+        this._paginatedQuerySubscription = this._filteredQuery.startAfter(this._cursors[this._currentPage]).onSnapshot((data)=>{
             if(data.docs.length === 0){
                 this.isLastPage = true;
                 return;
@@ -73,11 +74,11 @@ export class PaginatedQuery<T>{
         this._filteredQuery = this._filteredQuery.limit(this._paginationParameters.pageSize+1);
 
         //unsubscribe if we are subscribed...
-        if (this._filteredQuerySubscription) {
-            this._filteredQuerySubscription();
+        if (this._paginatedQuerySubscription) {
+            this._paginatedQuerySubscription();
         }
 
-        this._filteredQuerySubscription = this._filteredQuery.onSnapshot((data)=>{
+        this._paginatedQuerySubscription = this._filteredQuery.onSnapshot((data)=>{
             this._cursors[this._currentPage] = data.docs[data.docs.length - 2];
             this.isLastPage = data.docs.length < this._paginationParameters.pageSize+1; //Maybe do some crazy shit like get 1 more that the page size, then set the curso one result behind to see if its rly the last page!?!?!? 🤯
 
@@ -87,8 +88,8 @@ export class PaginatedQuery<T>{
     }
 
     public shutDown = async():Promise<void> => {
-        if (this._filteredQuerySubscription) {
-            this._filteredQuerySubscription();
+        if (this._paginatedQuerySubscription) {
+            this._paginatedQuerySubscription();
         }
     }
 
@@ -100,7 +101,7 @@ export class PaginatedQuery<T>{
     private _cursors: any[];
     private _currentPage: number;
     private _filteredQuery: any;
-    private _filteredQuerySubscription: any;
+    private _paginatedQuerySubscription: any;
     private _itemSerializer: TypedJSON<T>;
     private _collectionName: string;
 
