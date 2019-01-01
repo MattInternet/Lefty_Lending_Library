@@ -5,7 +5,13 @@ import BooksTable from 'component/content/BooksTable';
 
 const styles: any = (theme: any) => ({
     root:{
-        width:'100%'
+        width:'100%',
+        margin: 0,
+    },
+    tight: {
+        marginTop: -theme.spacing.unit,
+        marginLeft: -theme.spacing.unit,
+        width: '110%' //Idk why it had to come to this... The negative margin didnt work here like it did in UserProfilePanel 😢
     }
 });
 
@@ -62,7 +68,7 @@ class Library extends React.Component<any, ILibraryState> {
 
         return(
             <div className={classes.root}>
-                <AppBar position="static">
+                <AppBar position="static" className={classes.tight}>
                     <Tabs value={selectedTab} onChange={this.handleTabChange}>
                         <Tab label={LibraryTabs.Books} value={LibraryTabs.Books}/>
                         <Tab label={LibraryTabs.Magazines} value={LibraryTabs.Magazines}/>

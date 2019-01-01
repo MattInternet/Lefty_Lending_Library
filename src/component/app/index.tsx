@@ -8,15 +8,15 @@ import { Route, Switch } from 'react-router-dom';
 
 import { AppHeader, Main } from 'component/layout';
 
-import {Home, Library, About, Profile}  from 'component/routes'
+import { Home, Library, About, Profile } from 'component/routes'
 
-import {SignInDialog} from 'component/user'
+import { SignInDialog } from 'component/user'
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 @inject('authStore')
 @observer
-class App extends React.Component<any,any> {
+class App extends React.Component<any, any> {
   render() {
 
     const theme = createMuiTheme({
@@ -35,7 +35,7 @@ class App extends React.Component<any,any> {
         <React.Fragment>
             <MuiThemeProvider theme={theme}>
                 <DocumentHead />
-                <AppHeader title={"Lefty Lending Library 📚"}/>
+                    <AppHeader title={"Lefty Lending Library 📚"} />
                 <Main>
                     <Switch>
                         <Route path='/' exact={true} component={Home} />

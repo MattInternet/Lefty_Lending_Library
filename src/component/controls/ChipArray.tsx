@@ -19,14 +19,15 @@ const styles: any = (theme: any) => ({
     }
 });
 
-export interface IChipArrayProps {
+interface IChipArrayProps {
+    //The data to be displayed
     data: any[];
 
     //How many chips to render before adding the ellipses with the popover showing the rest
     displayCount: number;
 
     //The icon to show on the left side of the chips
-    icon: any;
+    icon: React.ReactElement<any>;
 
     classes: any
 }
