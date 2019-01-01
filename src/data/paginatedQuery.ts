@@ -6,7 +6,7 @@ import { TypedJSON } from "typedjson";
 export class PaginatedQuery<T>{
 
 //#region public
-    constructor(storage: firebase.firestore.Firestore, parameters: PaginationParameters, collectionName: string, itemSerializer: TypedJSON<any>){
+    constructor(storage: firebase.firestore.Firestore, parameters: PaginationParameters, collectionName: string, itemSerializer: TypedJSON<T>){
         this._storage = storage;
         this._itemSerializer = itemSerializer;
         this._collectionName = collectionName;

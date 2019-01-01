@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { withStyles, Chip } from '@material-ui/core';
-// import { bookStore } from 'stores';
+import { withStyles } from '@material-ui/core';
 import { inject, observer } from 'mobx-react';
 import PersonIcon from '@material-ui/icons/Person';
 
@@ -12,7 +11,7 @@ import {
 } from '@devexpress/dx-react-grid';
 import { bookStore } from 'stores';
 import { PaginationParameters } from 'data';
-import { PaginationControls } from 'component/controls';
+import { PaginationControls, ChipArray } from 'component/controls';
 
 const styles: any = (theme: any) => ({
     authorChip: {
@@ -58,14 +57,17 @@ class BooksTable extends React.Component<any, IBooksTableState> {
         { name: 'Title', title: 'Title' },
         { name: 'Publisher', title: 'Publisher' },
         { name: 'PublishedDate', title: 'Published', getCellValue: row => (row.PublishedDate ? row.ShortPublishedDate : null) },
+        // {
+        //     name: 'Authors', title: 'Author(s)', getCellValue: row => (row.Authors ? row.Authors.map(data => {
+        //         return <Chip
+        //             key={data}
+        //             icon={<PersonIcon />}
+        //             label={data}
+        //         />
+        //     }) : null)
+        // },
         {
-            name: 'Authors', title: 'Author(s)', getCellValue: row => (row.Authors ? row.Authors.map(data => {
-                return <Chip
-                    key={data}
-                    icon={<PersonIcon />}
-                    label={data}
-                />
-            }) : null)
+            name: 'Authors', title: 'Author(s)', getCellValue: row => (row.Authors ? <ChipArray data={row.Authors} displayCount={1} icon={<PersonIcon/>}/> : null)
         },
         { name: 'PageCount', title: 'Pages' }
     ];
@@ -112,7 +114,6 @@ class BooksTable extends React.Component<any, IBooksTableState> {
         const { paginatedBooks, isFirstPaginatedBooksPage, isLastPaginatedBooksPage } = bookStore;
         return (
             <React.Fragment>
-
                 <Grid columns={this.columns} rows={paginatedBooks || []}>
                     <RowDetailState/>
                     <SortingState
