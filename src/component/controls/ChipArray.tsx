@@ -93,9 +93,8 @@ class ChipArray extends React.Component<IChipArrayProps, any>{
                             >
                                 <List dense>
                                     {data.map((dataItem, index) => {
-                                        return <ListItem>
+                                        return <ListItem dense key={`${index}-${dataItem}`}>
                                             <Chip
-                                                key={`${index}-${dataItem}`}
                                                 icon={icon}
                                                 label={dataItem} />
                                         </ListItem>

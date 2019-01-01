@@ -58,22 +58,14 @@ class BookDetails extends React.Component<IBookDetailsProps, any> {
                         <Typography gutterBottom variant="subtitle1">
                             {`${this.props.book ? this.props.book.PageCount ? `Pages: ${this.props.book.PageCount}` : "" : ""}`}
                         </Typography>
-                        {/* <Typography gutterBottom variant="subtitle1">
-                            {lenderGrid ? 'logged in' : 'not logged in'}
-                        </Typography> */}
                     </Grid>
                     <Grid item xs={2}>
                         <Typography variant="body1">{this.props.book ? this.props.book.ShortDescription : null}</Typography>
                     </Grid>
 
                     <Grid item xs={5}>
-                    <BookLenderTable book={book} />
+                        <BookLenderTable book={book}/>
                     </Grid>
-                    {/* {lenderGrid ?
-                        <Grid item xs={4}>
-                            {lenderGrid}
-                        </Grid>
-                        : null} */}
                 </Grid>
             </div>
         );

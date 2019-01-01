@@ -55,7 +55,6 @@ class BookLenderTable extends React.Component<IBookLenderTableInfo, any>{
     private fetchBookLenderInfos = () => {
         if(!this.bookLenderInfos){
             this.props.bookStore!.getBookLenderInfos(this.props.book.isbn13).then(res => {
-                console.log('lenderInfos', res);
                 this.bookLenderInfos = res;
             });
         }
@@ -103,7 +102,7 @@ class BookLenderTable extends React.Component<IBookLenderTableInfo, any>{
                             :
                             <Typography variant="h5">{`This book has a Lender!`}</Typography>
                         }
-                        <Typography variant="subheading">{`Login to see who ${book.Lenders.length > 1 ? 'they are' : 'it is'} and start Lending!`}</Typography>
+                        <Typography variant="subtitle1">{`Login to see who ${book.Lenders.length > 1 ? 'they are' : 'it is'} and start Lending!`}</Typography>
                     </Paper>
                 </div>
             );
