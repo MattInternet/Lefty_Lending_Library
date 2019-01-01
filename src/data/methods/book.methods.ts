@@ -2,15 +2,18 @@ import { Collections } from "data/collections";
 import { Book, BookLenderInfo } from "data/models";
 import { TypedJSON } from "typedjson";
 import * as firebase from "firebase";
+import { DataUtils } from "data/dataUtils";
 
 export class BookMethods{
     private _storage: firebase.firestore.Firestore;
     private _bookSerializer: TypedJSON<Book>;
+    private _bookLenderInfoSerializer: TypedJSON<BookLenderInfo>;
     private _booksByLenderSubscription: () => any;
 
     constructor(storage: firebase.firestore.Firestore) {
         this._storage = storage;
         this._bookSerializer = new TypedJSON<Book>(Book);
+        this._bookLenderInfoSerializer = new TypedJSON<BookLenderInfo>(BookLenderInfo);
     }
 
     public async getBook(isbn13: string): Promise<Book | null> {
@@ -25,11 +28,19 @@ export class BookMethods{
         await this._storage.collection(Collections.BOOKS_COLLECTION).doc(newBook.isbn13).set({ ...newBook });
     }
 
-    public async addLenderInfo(isbn13: string, userId: string, lenderBookInfo: BookLenderInfo): Promise<void> {
+    public addLenderInfo = async (isbn13: string, userId: string, lenderBookInfo: BookLenderInfo): Promise<void> => {
         await this._storage.collection(Collections.BOOKS_COLLECTION).doc(isbn13).update({
             Lenders: firebase.firestore.FieldValue.arrayUnion(userId)
         })
         await this._storage.collection(Collections.BOOKS_COLLECTION).doc(isbn13).collection(Collections.LENDERBOOKINFOS_COLLECTION).doc(userId).set({ ...lenderBookInfo });
+    }
+
+    public getBookLenderInfos = async (isbn13: string):Promise<BookLenderInfo[]> => {
+        let result = await this._storage.collection(Collections.BOOKS_COLLECTION).doc(isbn13).collection(Collections.LENDERBOOKINFOS_COLLECTION).get();
+        if(result.empty){
+            return [];
+        }
+        return DataUtils.parseItemsFromDocs(result.docs, this._bookLenderInfoSerializer);
     }
 
     public unsubscribeBooksByLender = () => {

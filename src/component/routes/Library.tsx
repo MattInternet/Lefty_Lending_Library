@@ -11,7 +11,8 @@ const styles: any = (theme: any) => ({
     tight: {
         marginTop: -theme.spacing.unit,
         marginLeft: -theme.spacing.unit,
-        width: '110%' //Idk why it had to come to this... The negative margin didnt work here like it did in UserProfilePanel 😢
+        marginRight: -theme.spacing.unit,
+        width: '105%', //Idk why it had to come to this... The negative margin didnt work here like it did in UserProfilePanel 😢
     }
 });
 

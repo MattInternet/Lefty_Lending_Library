@@ -25,7 +25,7 @@ export class UserMethods {
             return Promise.resolve();
         }
         catch(error){
-            throw new Error("Failed to create backend user!");
+            throw new Error(`ailed to create backend user: ${error}`);
         }
     }
 }

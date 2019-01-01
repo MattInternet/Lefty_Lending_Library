@@ -22,6 +22,10 @@ export class BookStore{
         return await client.books.getBook(isbn13);
     }
 
+    public getBookLenderInfos = async (isbn13: string):Promise<BookLenderInfo[]> => {
+        return await client.books.getBookLenderInfos(isbn13);
+    }
+
     public createBookIfDoesntExist = async (newBook : Book):Promise<void> => {
         if(!await this.getBook(newBook.isbn13)){
             await client.books.createBook(newBook);

@@ -56,9 +56,9 @@ class ChipArray extends React.Component<IChipArrayProps, any>{
         return (
             <div>
                 {
-                    data.slice(0, Math.min(data.length, displayCount)).map(dataItem => {
+                    data.slice(0, Math.min(data.length, displayCount)).map((dataItem, index) => {
                         return <Chip
-                            key={dataItem}
+                            key={`${index}-${dataItem}`}
                             icon={icon}
                             label={dataItem} />
                     })
@@ -92,10 +92,10 @@ class ChipArray extends React.Component<IChipArrayProps, any>{
                                 disableRestoreFocus
                             >
                                 <List dense>
-                                    {data.map(dataItem => {
+                                    {data.map((dataItem, index) => {
                                         return <ListItem>
                                             <Chip
-                                                key={dataItem}
+                                                key={`${index}-${dataItem}`}
                                                 icon={icon}
                                                 label={dataItem} />
                                         </ListItem>

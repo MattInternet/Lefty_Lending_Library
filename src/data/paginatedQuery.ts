@@ -1,6 +1,7 @@
 import { PaginationParameters } from "./paginationParameters";
 import { observable } from "mobx";
 import { TypedJSON } from "typedjson";
+import { DataUtils } from "./dataUtils";
 
 //Currently this doesnt actually let you 'Query' ironically. It lets you paginate and sort. But I plan to add the actual 'Queryness' to it 😅
 export class PaginatedQuery<T>{
@@ -106,14 +107,7 @@ export class PaginatedQuery<T>{
     private _collectionName: string;
 
     private parseItemsFromDocs(docs: any): any[] {
-        let items: T[] = [];
-        docs.forEach((doc) => {
-            let parsedItem: T | undefined = this._itemSerializer.parse(doc.data());
-            if (parsedItem) {
-                items.push(parsedItem);
-            }
-        });
-        return items;
+        return DataUtils.parseItemsFromDocs(docs, this._itemSerializer);
     }
 //#endregion
 }
