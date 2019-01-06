@@ -8,15 +8,17 @@ import { Route, Switch } from 'react-router-dom';
 
 import { AppHeader, Main } from 'component/layout';
 
-import { Home, Library, About, Profile } from 'component/routes'
+import { Home, Library, About, Profile, Admin } from 'component/routes'
 
 import { SignInDialog } from 'component/user'
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import PrivateRoute from 'component/routes/PrivateRoute';
 
 @inject('authStore')
 @observer
 class App extends React.Component<any, any> {
+
   render() {
 
     const theme = createMuiTheme({
@@ -31,6 +33,7 @@ class App extends React.Component<any, any> {
         },
         typography: { useNextVariants: true }
     });
+    
     return (
         <React.Fragment>
             <MuiThemeProvider theme={theme}>
@@ -42,6 +45,7 @@ class App extends React.Component<any, any> {
                         <Route path='/library/:tab' component={Library} />
                         <Route path='/about' exact={true} component={About} />
                         <Route path='/profile' exact={true} component={Profile} />
+                        <PrivateRoute path='/admin' exact={true} component={Admin} />
                     </Switch>
                     <SignInDialog />
                 </Main>

@@ -57,6 +57,9 @@ class UserMenu extends React.Component<IUserMenuProps, any> {
                     onClose={this.handleClose}>
                     <MenuItem onClick={this.handleNavigateToProfile}>Profile</MenuItem>
                     <MenuItem onClick={this.handleLogout}>Logout</MenuItem>
+                    {authStore.isAdmin ? 
+                    <MenuItem onClick={this.handleNavigateToAdmin}>Admin</MenuItem>
+                    : ''}
                 </Menu>
             </div>
         )
@@ -79,6 +82,11 @@ class UserMenu extends React.Component<IUserMenuProps, any> {
     private handleNavigateToProfile = () => {
         this.handleClose();
         this.props.routerStore.history.push('/profile')
+    }
+
+    private handleNavigateToAdmin = () => {
+        this.handleClose();
+        this.props.routerStore.history.push('/admin')
     }
 }
 

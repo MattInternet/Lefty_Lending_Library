@@ -1,0 +1,14 @@
+{
+  "name": "admin",
+  "version": "1.0.0",
+  "description": "Used to set (or remove) users as admins",
+  "main": "index.js",
+  "author": "Matthew Monahan",
+  "license": "MIT",
+  "dependencies": {
+    "firebase-admin": "^6.4.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
