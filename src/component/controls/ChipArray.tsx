@@ -2,22 +2,27 @@ import * as React from 'react';
 import { withStyles, Chip, Popover, List, ListItem } from '@material-ui/core';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 
-const styles: any = (theme: any) => ({
-    popover: {
-        pointerEvents: 'none',
-    },
-    paper: {
-        padding: theme.spacing.unit,
-    },
-    ellipsesIcon: {
-        verticalAlign: 'middle',
-        background: theme.palette.grey[700],
-        borderRadius: '50%',
-        height:'100%',
-        minWidth: '30px',
-        marginLeft: theme.spacing.unit
+const styles: any = (theme: any) => {
+    let backgroundColor = theme.palette.type === 'light' ? theme.palette.grey[300] : theme.palette.grey[700];
+
+    return {
+        popover: {
+            pointerEvents: 'none',
+        },
+        paper: {
+            padding: theme.spacing.unit,
+        },
+        ellipsesIcon: {
+            verticalAlign: 'middle',
+            background: backgroundColor,
+            color: theme.palette.getContrastText(backgroundColor),
+            borderRadius: '50%',
+            height:'100%',
+            minWidth: '30px',
+            marginLeft: theme.spacing.unit
+        }
     }
-});
+};
 
 interface IChipArrayProps {
     //The data to be displayed
