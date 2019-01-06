@@ -3,7 +3,9 @@ import * as React from 'react';
 import { observer } from 'mobx-react';
 import { withStyles, ExpansionPanel, ExpansionPanelSummary, Typography, ExpansionPanelDetails } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import SettingsIcon from '@material-ui/icons/Settings';
 import { UserStore } from 'stores';
+import { UserSettingsPanel } from '.';
 
 interface IUserProfilePanelProps {
     userStore: UserStore;
@@ -32,6 +34,9 @@ const styles: any = (theme: any) => ({
         marginTop: -theme.spacing.unit,
         marginLeft: -theme.spacing.unit,
         marginRight: -theme.spacing.unit
+    },
+    settingsIcon: {
+        marginLeft: 'auto'
     }
 });
 
@@ -48,18 +53,19 @@ class UserProfilePanel extends React.Component<IUserProfilePanelProps, IUserProf
         return(
             <div className={classes.tight}>
                 <ExpansionPanel className={classes.expansionPanel}>
-                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
                         <div className={classes.summary}>
                             <Typography>{userProfile? userProfile.DisplayName : null}</Typography>
                             <Typography>{userProfile? userProfile.Email : null}</Typography>
                             <Typography>{userProfile? userProfile.Phone : null}</Typography>
                             <Typography>{userProfile? userProfile.Location : null}</Typography>
                         </div>
+                        <Typography>
+                            <SettingsIcon className={classes.settingsIcon}/>
+                        </Typography>
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails>
-                        <Typography>
-                            🚧There will be something here... or not... I was thinking we could show the users rough location (region) on a map, maybe let them edit their profile, etc...🚧
-                        </Typography>
+                        <UserSettingsPanel/>
                     </ExpansionPanelDetails>
                 </ExpansionPanel>
             </div>

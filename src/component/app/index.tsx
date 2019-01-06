@@ -15,15 +15,16 @@ import { SignInDialog } from 'component/user'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import PrivateRoute from 'component/routes/PrivateRoute';
 
-@inject('authStore')
+@inject('userStore')
 @observer
 class App extends React.Component<any, any> {
 
   render() {
+    const { userStore } = this.props;
 
     const theme = createMuiTheme({
         palette: {
-          type: 'dark',
+          type: userStore.userTheme,
           primary: {
               main: '#AA3939'
           },

@@ -28,4 +28,15 @@ export class UserMethods {
             throw new Error(`Failed to create backend user: ${error}`);
         }
     }
+
+    public async setUserTheme(userId: string, theme: 'dark'|'light'){
+        try{
+            return await this._storage.collection(Collections.USERS_COLLECTION).doc(userId).update({
+                Theme: theme
+            });
+        }
+        catch(error){
+            throw new Error(`Failed to update backend user: ${error}`);
+        }
+    }
 }

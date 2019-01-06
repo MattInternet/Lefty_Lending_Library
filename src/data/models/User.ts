@@ -1,17 +1,14 @@
 import {jsonObject, jsonMember} from 'typedjson'
 import { UserLocation } from 'data/enums';
-
-export enum UiTheme{
-    "dark",
-    "light"
-}
+import { observable } from 'mobx';
 
 export interface IUser {
     uid: string,
     DisplayName: string,
     Email: string,
     Phone: string,
-    Location: UserLocation
+    Location: UserLocation,
+    Theme: 'dark'|'light'
 }
 
 @jsonObject
@@ -30,6 +27,10 @@ export class User implements IUser {
 
     @jsonMember({ constructor: String })
     Email: string;
+
+    @observable
+    @jsonMember({ constructor: String })
+    Theme: 'dark'|'light';
 
     public static initializeBackendUserFromFirebaseUser(firebaseUser: firebase.User): IUser{
         let user = new User();
