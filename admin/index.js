@@ -1,27 +1,51 @@
+/*
+This app can be used to add/revoke admin status to a user on the LLL firebase.
+ex: yarn start [dev/staging] [up/down] [xxxUserIdxxx]
+*/
+
 var admin = require('firebase-admin');
 
-var serviceAccount = require("./LLL-serviceAccountKey.secret.json");
 
 
+
+if (!process.argv[2]) {
+  throw Error("Example: yarn start [dev/staging] [up/down] [xxxUserIdxxx]");
+}
+
+var serviceAccountJsonPath;
+var databaseURL;
+
+switch (process.argv[2]) {
+  case 'staging':
+    serviceAccountJsonPath = "./LLLStaging-serviceAccountKey.secret.json";
+    databaseURL = "https://leftylendinglibrary-staging.firebaseio.com";
+    break;
+  default: //dev
+    serviceAccountJsonPath = "./LLL-serviceAccountKey.secret.json";
+    databaseURL = "https://leftylendinglibrary-c85d7.firebaseio.com";
+}
+
+var serviceAccount = require(serviceAccountJsonPath);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://leftylendinglibrary-c85d7.firebaseio.com"
+  databaseURL: databaseURL
 });
 
-if(!process.argv[2]){
-  throw Error("Please provide 'up' or 'down'  (ex: yarn start up xxxUIDxxx)");
+if (!process.argv[3]) {
+  throw Error("Example: yarn start [dev/staging] [up/down] [xxxUserIdxxx]");
 }
 
-let upgrade = process.argv[2] === "up";
+let upgrade = process.argv[3] === "up";
 
-if(!process.argv[3]){
-  throw Error("Please provide a uid!  (ex: yarn start up xxxUIDxxx)");
+if (!process.argv[4]) {
+  throw Error("Example: yarn start [dev/staging] [up/down] [xxxUserIdxxx]");
 }
 
-let uid = process.argv[3];
+let uid = process.argv[4];
 
-admin.auth().setCustomUserClaims(uid, {admin: upgrade}).then(() => {
-  // The new custom claims will propagate to the user's ID token the
-  // next time a new one is issued.
-  });
+// The new custom claims will propagate to the user's ID token the
+// next time a new one is issued.
+admin.auth().setCustomUserClaims(uid, { admin: upgrade }).then(()=> {
+  console.log("done")
+})
