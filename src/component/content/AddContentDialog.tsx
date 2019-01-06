@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Dialog, withStyles, Button, DialogTitle, DialogActions, DialogContent, DialogContentText, TextField, Chip, Tooltip } from '@material-ui/core';
 import { inject, observer } from 'mobx-react';
-import { bookStore, authStore } from 'stores';
+import { bookStore, userStore } from 'stores';
 import { Book, BookLenderInfo } from 'data/models';
 import { SimpleBookView } from '.';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
@@ -36,8 +36,7 @@ const initialState = {
     bookExistsInBackend: false
 };
 
-@inject('bookStore')
-@inject('authStore')
+@inject('bookStore', 'authStore', 'userStore')
 @observer
 class AddContentDialog extends React.Component<IAddContentDialogProps, IAddContentDialogState> {
     state = initialState;
@@ -76,12 +75,12 @@ class AddContentDialog extends React.Component<IAddContentDialogProps, IAddConte
         //TODO: Get LenderBookInfo from the UI 😁
         let fakeLenderBookInfo = new BookLenderInfo();
         fakeLenderBookInfo.Condtion = BookCondition.Like_New;
-        fakeLenderBookInfo.LenderEmail = authStore.userProfile!.Email;
-        fakeLenderBookInfo.LenderName = authStore.userProfile!.DisplayName;
+        fakeLenderBookInfo.LenderEmail = userStore.userProfile!.Email;
+        fakeLenderBookInfo.LenderName = userStore.userProfile!.DisplayName;
         fakeLenderBookInfo.PermissionToMarkup = false;
 
         if(this.state.pendingBook){
-            await bookStore.createBookAndAssociateWithLender(fakeLenderBookInfo, this.state.pendingBook!, authStore.userProfile!.uid);
+            await bookStore.createBookAndAssociateWithLender(fakeLenderBookInfo, this.state.pendingBook!, userStore.userProfile!.uid);
         }
 
         this.handleClose();

@@ -4,12 +4,13 @@ import { observer, inject } from 'mobx-react';
 import { Typography, Button, Menu, MenuItem, IconButton } from '@material-ui/core';
 import { withStyles } from '@material-ui/core';
 import PersonIcon from '@material-ui/icons/Person'
+import { AuthStore, RouterStore } from 'stores';
 
 export interface IUserMenuProps {
-    authStore?: any;
+    authStore?: AuthStore;
     className?: string;
     classes?: any;
-    routerStore?: any;
+    routerStore?: RouterStore;
 }
 
 const styles: any = (theme: any) => ({
@@ -18,8 +19,7 @@ const styles: any = (theme: any) => ({
     }
 });
 
-@inject('authStore')
-@inject('routerStore')
+@inject('authStore','routerStore')
 @observer
 class UserMenu extends React.Component<IUserMenuProps, any> {
     state = {
@@ -28,14 +28,14 @@ class UserMenu extends React.Component<IUserMenuProps, any> {
 
     public render() {
         const { authStore, className, classes } = this.props;
-        const { isLoggedIn, login, initializing} = authStore;
+        const { isAuthenticated, login, initializing} = authStore!;
         const { anchorEl } = this.state;
 
         if (initializing) {
             return <Typography>INITIALIZING</Typography>;
         }
 
-        if (!isLoggedIn) {
+        if (!isAuthenticated) {
             return (
                 <Button onClick={login} className={className || classes.userMenu} color="inherit">
                     Sign in
@@ -57,7 +57,7 @@ class UserMenu extends React.Component<IUserMenuProps, any> {
                     onClose={this.handleClose}>
                     <MenuItem onClick={this.handleNavigateToProfile}>Profile</MenuItem>
                     <MenuItem onClick={this.handleLogout}>Logout</MenuItem>
-                    {authStore.isAdmin ? 
+                    {authStore!.isAdmin ? 
                     <MenuItem onClick={this.handleNavigateToAdmin}>Admin</MenuItem>
                     : ''}
                 </Menu>
@@ -75,18 +75,18 @@ class UserMenu extends React.Component<IUserMenuProps, any> {
     };
 
     private handleLogout = () => {
-        this.props.authStore.logout();
+        this.props.authStore!.logout();
         this.handleClose();
     }
 
     private handleNavigateToProfile = () => {
         this.handleClose();
-        this.props.routerStore.history.push('/profile')
+        this.props.routerStore!.history.push('/profile')
     }
 
     private handleNavigateToAdmin = () => {
         this.handleClose();
-        this.props.routerStore.history.push('/admin')
+        this.props.routerStore!.history.push('/admin')
     }
 }
 

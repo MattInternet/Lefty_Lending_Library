@@ -18,10 +18,10 @@ class SignInDialog extends React.Component<any, IUserCreationInfo> {
             displayLogin,
             toggleDisplayLogin,
             newUser,
-            isAuthenticatedWithFirebase
+            isAuthenticated
         } = authStore;
 
-        if (!isAuthenticatedWithFirebase) {
+        if (!isAuthenticated) {
             return (
                 <Dialog open={displayLogin} onClose={toggleDisplayLogin}>
                     <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={auth} />

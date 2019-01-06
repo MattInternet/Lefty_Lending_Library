@@ -36,7 +36,7 @@ class LenderContentGrid extends React.Component<IBookGridProps, any> {
                         <Hidden smDown>
                             <Button variant="contained" color="primary" className={classes.createBookButton} onClick={onAddContent(true)}>
                                 <Typography>
-                                    Create A Book
+                                    Add A Book
                                 </Typography>
                             </Button>
                         </Hidden>

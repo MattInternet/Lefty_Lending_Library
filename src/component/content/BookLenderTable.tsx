@@ -2,7 +2,7 @@ import * as React from 'react';
 import { withStyles, CircularProgress, Table, TableHead, TableRow, TableCell, Paper, Typography, TableBody } from '@material-ui/core';
 import { Book, BookLenderInfo } from 'data/models';
 import { inject, observer } from 'mobx-react';
-import { BookStore, AuthStore } from 'stores';
+import { BookStore, UserStore, userStore } from 'stores';
 import { observable } from 'mobx';
 import LockIcon from '@material-ui/icons/Lock';
 
@@ -33,12 +33,11 @@ interface IBookLenderTableInfo{
     book: Book;
 
     bookStore?: BookStore;
-    authStore?: AuthStore;
+    userStore?: UserStore;
     classes: any;
 }
 
-@inject('bookStore')
-@inject('authStore')
+@inject('bookStore','userStore')
 @observer
 class BookLenderTable extends React.Component<IBookLenderTableInfo, any>{
     @observable
@@ -46,7 +45,7 @@ class BookLenderTable extends React.Component<IBookLenderTableInfo, any>{
 
     constructor(props: any){
         super(props);
-        if(this.props.authStore!.isLoggedIn){
+        if(this.props.userStore!.isLoggedIn){
             this.fetchBookLenderInfos();
             return;
         }
@@ -65,7 +64,7 @@ class BookLenderTable extends React.Component<IBookLenderTableInfo, any>{
     }
 
     public render(){
-        const { classes, authStore, book } = this.props;
+        const { classes, book } = this.props;
         if(this.bookLenderInfos){
             return(
                 <Table className={classes.root} padding='dense'>
@@ -92,7 +91,7 @@ class BookLenderTable extends React.Component<IBookLenderTableInfo, any>{
                 </Table>
             );
         }
-        else if(!authStore!.isLoggedIn){
+        else if(!userStore!.isLoggedIn){
             return(
                 <div className={classes.centeredParent}>
                     <Paper className={classes.warningParent}>

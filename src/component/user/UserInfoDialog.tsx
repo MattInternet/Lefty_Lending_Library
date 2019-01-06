@@ -6,6 +6,7 @@ import { UserLocation } from 'data/enums';
 
 
 import {  IUserCreationInfo } from 'common';
+import { AuthStore } from 'stores';
 
 const styles: any = theme => ({
     fieldInput: {
@@ -23,7 +24,7 @@ const styles: any = theme => ({
 });
 
 interface ISignInDialogProps {
-    authStore?: any;
+    authStore?: AuthStore;
     classes?: any;
     fullScreen?: any;
 }
@@ -45,7 +46,7 @@ class UserInfoDialog extends React.Component<ISignInDialogProps, IUserCreationIn
         if(!this.validateForm()){
             return;
         }
-        this.props.authStore.onFinalizeUserCreation(this.state);
+        this.props.authStore!.onFinalizeUserCreation(this.state);
     }
 
     private validateForm = ():boolean => {
@@ -80,7 +81,7 @@ class UserInfoDialog extends React.Component<ISignInDialogProps, IUserCreationIn
         const { classes, authStore, fullScreen } = this.props;
         const {
             newUser,
-        } = authStore;
+        } = authStore!;
 
         return(
         <Dialog open={newUser} fullScreen={fullScreen}>

@@ -3,10 +3,10 @@ import * as React from 'react';
 import { observer } from 'mobx-react';
 import { withStyles, ExpansionPanel, ExpansionPanelSummary, Typography, ExpansionPanelDetails } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { AuthStore } from 'stores';
+import { UserStore } from 'stores';
 
 interface IUserProfilePanelProps {
-    authStore: AuthStore;
+    userStore: UserStore;
     classes?: any;
 }
 
@@ -42,8 +42,8 @@ class UserProfilePanel extends React.Component<IUserProfilePanelProps, IUserProf
     }
 
     public render() {
-        const {  classes, authStore } = this.props;
-        const { userProfile }=authStore;
+        const {  classes, userStore } = this.props;
+        const { userProfile }=userStore;
 
         return(
             <div className={classes.tight}>

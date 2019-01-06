@@ -42,12 +42,6 @@ export class AuthStore {
      * Gets the user's profile.
      */
     @observable
-    public userProfile: User | null;
-
-    /**
-     * Gets the user's profile.
-     */
-    @observable
     public firebaseUser: firebase.User | null;
 
     /**
@@ -66,15 +60,7 @@ export class AuthStore {
      * Gets whether the user is logged in or not
      */
     @computed
-    public get isLoggedIn() : boolean{
-        return this.userProfile !== null;
-    }
-
-    /**
-     * Gets whether the user is logged in or not
-     */
-    @computed
-    public get isAuthenticatedWithFirebase() : boolean{
+    public get isAuthenticated() : boolean{
         return this.firebaseUser !== null;
     }
 
@@ -189,9 +175,7 @@ export class AuthStore {
 
     @action
     private setUserProfile = (userProfile: User | null) => {
-        console.log('setUserProfile', userProfile);
         pubsub.publish(USER_AUTHENTICATED, userProfile);
-        this.userProfile = userProfile;
     }
 
     @action

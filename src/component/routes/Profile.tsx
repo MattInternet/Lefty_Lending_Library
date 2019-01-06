@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Fab, withStyles, Hidden } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add'
 import { inject, observer } from 'mobx-react';
-import { AuthStore } from 'stores';
+import { UserStore } from 'stores';
 import { UserProfilePanel } from 'component';
 import { AddContentDialog, LenderContentGrid } from 'component/content';
 import { Book } from 'data/models';
@@ -22,7 +22,7 @@ const styles: any = theme => ({
 });
 
 interface IProfileRouteProps {
-    authStore: AuthStore;
+    userStore: UserStore;
     classes?: any;
 }
 
@@ -31,7 +31,7 @@ interface IProfileRouteState {
     lenderBooks: Book[] | null;
 }
 
-@inject('authStore')
+@inject('userStore')
 @observer
 class Profile extends React.Component<IProfileRouteProps, IProfileRouteState> {
 
@@ -41,15 +41,12 @@ class Profile extends React.Component<IProfileRouteProps, IProfileRouteState> {
     }
 
     public render() {
-        const { classes, authStore } = this.props;
-        const {
-            //  userProfile
-        } = authStore;
+        const { classes, userStore } = this.props;
         
 
         return (
             <div className={classes.content}>
-                <UserProfilePanel authStore={authStore} />
+                <UserProfilePanel userStore={userStore} />
 
                 <AddContentDialog open={this.state.addContentOpen} onClose={this.setAddContentVisibility(false)}/>
 
