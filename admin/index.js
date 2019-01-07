@@ -47,5 +47,4 @@ let uid = process.argv[4];
 // The new custom claims will propagate to the user's ID token the
 // next time a new one is issued.
 admin.auth().setCustomUserClaims(uid, { admin: upgrade }).then(()=> {
-  console.log("done")
 })

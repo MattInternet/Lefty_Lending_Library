@@ -15,4 +15,7 @@ export class BookLenderInfo implements ILenderInfo{
 
     @jsonMember({constructor: Boolean})
     PermissionToMarkup: boolean;
+
+    @jsonMember({constructor: Number})
+    Quantity: number
 }

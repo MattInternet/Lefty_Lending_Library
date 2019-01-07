@@ -44,9 +44,9 @@ class BooksTable extends React.Component<any, IBooksTableState> {
 
     columns = [
         { name: 'Title', title: 'Title' },
+        { name: 'Authors', title: 'Author(s)', getCellValue: row => (row.Authors ? <ChipArray data={row.Authors} displayCount={1} icon={<PersonIcon />} /> : null) },
         { name: 'Publisher', title: 'Publisher' },
         { name: 'PublishedDate', title: 'Published', getCellValue: row => (row.PublishedDate ? row.ShortPublishedDate : null) },
-        { name: 'Authors', title: 'Author(s)', getCellValue: row => (row.Authors ? <ChipArray data={row.Authors} displayCount={1} icon={<PersonIcon />} /> : null) },
         { name: 'PageCount', title: 'Pages' }
     ];
 

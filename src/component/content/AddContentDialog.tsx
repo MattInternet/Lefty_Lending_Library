@@ -78,6 +78,7 @@ class AddContentDialog extends React.Component<IAddContentDialogProps, IAddConte
         fakeLenderBookInfo.LenderEmail = userStore.userProfile!.Email;
         fakeLenderBookInfo.LenderName = userStore.userProfile!.DisplayName;
         fakeLenderBookInfo.PermissionToMarkup = false;
+        fakeLenderBookInfo.Quantity = 3;
 
         if(this.state.pendingBook){
             await bookStore.createBookAndAssociateWithLender(fakeLenderBookInfo, this.state.pendingBook!, userStore.userProfile!.uid);

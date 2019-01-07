@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { withStyles, Grid, Typography } from '@material-ui/core';
+import { withStyles, Grid, Typography, Button, Dialog, DialogTitle } from '@material-ui/core';
 // import { Book } from 'data/models';
 import { ChipArray } from 'component';
 import PersonIcon from '@material-ui/icons/Person';
@@ -13,6 +13,9 @@ const styles: any = (theme: any) => ({
     root: {
         marginTop: theme.spacing.unit,
         marginBottom: theme.spacing.unit
+    },
+    descriptionDialogContent: {
+        padding: theme.spacing.unit * 4,
     }
 });
 
@@ -27,7 +30,19 @@ interface IBookDetailsProps {
 //@inject('authStore')
 @observer
 class BookDetails extends React.Component<IBookDetailsProps, any> {
+
+    state = {
+        open: false
+    };
+
+    setDescriptionVisibility = (visible: boolean) => {
+        this.setState({
+            open: visible
+        })
+    }
+
     public render() {
+
 
         const { book, classes } = this.props;
 
@@ -58,15 +73,23 @@ class BookDetails extends React.Component<IBookDetailsProps, any> {
                         <Typography gutterBottom variant="subtitle1">
                             {`${this.props.book ? this.props.book.PageCount ? `Pages: ${this.props.book.PageCount}` : "" : ""}`}
                         </Typography>
-                    </Grid>
-                    <Grid item xs={2}>
-                        <Typography variant="body1">{this.props.book ? this.props.book.ShortDescription : null}</Typography>
+                        <Button variant="contained" color="secondary" onClick={() => this.setDescriptionVisibility(true)}>View Description</Button>
                     </Grid>
 
-                    <Grid item xs={5}>
-                        <BookLenderTable book={book}/>
+                    <Grid item xs={7}>
+                        <BookLenderTable book={book} />
                     </Grid>
                 </Grid>
+                <Dialog
+                            open={this.state.open}
+                            onClose={() => this.setDescriptionVisibility(false)}>
+                            <DialogTitle>{book.Title}</DialogTitle>
+                            <div className={classes.descriptionDialogContent}>
+                                <Typography variant="body1">
+                                    {book.Description}
+                                </Typography>
+                            </div>
+                </Dialog>
             </div>
         );
     }

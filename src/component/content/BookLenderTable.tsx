@@ -11,9 +11,6 @@ const styles: any = (theme: any) => ({
         width: '100%',
         maxWidth: '100px'
     },
-    // tableWrapper: {
-    //     overflowX: 'auto',
-    // },
     centeredParent: {
         height: '100%',
         display: 'flex',
@@ -74,6 +71,7 @@ class BookLenderTable extends React.Component<IBookLenderTableInfo, any>{
                             <TableCell>Email</TableCell>
                             <TableCell>Condition</TableCell>
                             <TableCell>Markup Permission</TableCell>
+                            <TableCell>Available</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -84,6 +82,7 @@ class BookLenderTable extends React.Component<IBookLenderTableInfo, any>{
                                     <TableCell>{lenderInfo.LenderEmail}</TableCell>
                                     <TableCell>{lenderInfo.Condtion}</TableCell>
                                     <TableCell>{lenderInfo.PermissionToMarkup ? '👍🏻' : '⛔'}</TableCell>
+                                    <TableCell>{lenderInfo.Quantity}</TableCell>
                                 </TableRow>
                             )
                         })}
