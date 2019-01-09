@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Fab, withStyles, Hidden } from '@material-ui/core';
+import { Fab, withStyles, Hidden, Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add'
 import { inject, observer } from 'mobx-react';
 import { UserStore } from 'stores';
 import { UserProfilePanel } from 'component';
-import { AddContentDialog, LenderContentGrid } from 'component/content';
+import { AddContentDialog, LibraryView } from 'component/content';
 import { Book } from 'data/models';
 
 const styles: any = theme => ({
@@ -24,6 +24,8 @@ const styles: any = theme => ({
 interface IProfileRouteProps {
     userStore: UserStore;
     classes?: any;
+    match: any;
+    history: any;
 }
 
 interface IProfileRouteState {
@@ -41,16 +43,19 @@ class Profile extends React.Component<IProfileRouteProps, IProfileRouteState> {
     }
 
     public render() {
-        const { classes, userStore } = this.props;
+        const { classes, userStore, match, history } = this.props;
         
-
         return (
             <div className={classes.content}>
                 <UserProfilePanel userStore={userStore} />
 
                 <AddContentDialog open={this.state.addContentOpen} onClose={this.setAddContentVisibility(false)}/>
 
-                <LenderContentGrid onAddContent={this.setAddContentVisibility}/>
+                <Button variant="contained" color="primary" onClick={this.setAddContentVisibility(true)}>
+                    Add A Book
+                </Button>
+                {/* <LenderContentGrid onAddContent={this.setAddContentVisibility}/> //TODO: Remove this :)*/} 
+                <LibraryView variant={'user'} match={match} history={history}/>
 
                 <Hidden mdUp>
                     {this.state.addContentOpen ?

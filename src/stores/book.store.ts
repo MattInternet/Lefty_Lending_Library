@@ -1,7 +1,7 @@
-import { client, PaginationParameters } from "data";
+import { client, PaginatedQuery } from "data";
 import { Book, BookLenderInfo, User } from "data/models";
 import { pubsub, USER_AUTHENTICATED } from "pubsub";
-import { observable, computed } from "mobx";
+import { observable } from "mobx";
 
 //TODO: Move this to its own file...
 export class BookSearchResult{
@@ -59,33 +59,12 @@ export class BookStore{
         return isbn;
     }
 
-    @computed
-    public get paginatedBooks(): Book[] | null{
-        return client.paginatedBooks.paginatedCollection;
+    public get paginatedBooks(): PaginatedQuery<Book>{
+        return client.paginatedBooks;
     }
 
-    @computed
-    public get isLastPaginatedBooksPage(): boolean{
-        return client.paginatedBooks.isLastPage;
-    }
-
-    @computed
-    public get isFirstPaginatedBooksPage(): boolean{
-        return client.paginatedBooks.isFirstPage;
-    }
-
-    setPaginatedBooksParameters = async(pagination: PaginationParameters|null) =>{
-        if(pagination){
-            client.paginatedBooks.setQueryParameters(pagination);
-        }
-    }
-
-    getNextPaginatedBooks = () => {
-        client.paginatedBooks.nextPage();
-    }
-    
-    getPreviousPaginatedBooks = () => {
-        client.paginatedBooks.previousPage();
+    public get paginatedLenderBooks(): PaginatedQuery<Book>{
+        return client.paginatedLenderBooks;
     }
     //#endregion
 

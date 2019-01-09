@@ -10,9 +10,10 @@ import {
     SortingState, Sorting, RowDetailState
 } from '@devexpress/dx-react-grid';
 import { bookStore } from 'stores';
-import { PaginationParameters } from 'data';
+import { PaginationParameters, PaginatedQuery } from 'data';
 import { PaginationControls, ChipArray } from 'component/controls';
 import { BookDetails } from '.';
+import { Book } from 'data/models';
 
 const styles: any = (theme: any) => ({
 });
@@ -22,12 +23,20 @@ interface IBooksTableState {
     pageSize: number;
 }
 
+interface IBooksTableProps {
+    variant: 'public' | 'user'
+}
+
 @inject('bookStore')
 @observer
-class BooksTable extends React.Component<any, IBooksTableState> {
+class BooksTable extends React.Component<IBooksTableProps, IBooksTableState> {
+    private books: PaginatedQuery<Book>;
+
     constructor(props: any) {
         super(props);
 
+        this.books = this.props.variant === "public" ? bookStore.paginatedBooks : bookStore.paginatedLenderBooks;
+        
         this.state = {
             sorting: [{ columnName: "Title", direction: 'desc' }],
             pageSize: 10
@@ -64,34 +73,33 @@ class BooksTable extends React.Component<any, IBooksTableState> {
 
     generatePaginationParameters() {
         const { sorting, pageSize } = this.state;
-        let paginationHelper: PaginationParameters = { sort: sorting[0], pageSize: pageSize };
-        return paginationHelper;
+        return new PaginationParameters(sorting[0], pageSize);
     }
 
     oldpaginationParams: PaginationParameters;
 
     updateData = () => {
         let paginationParams = this.generatePaginationParameters();
-        if (JSON.stringify(paginationParams) != JSON.stringify(this.oldpaginationParams)) {
+        if (!paginationParams.equals(this.oldpaginationParams)) {
             this.oldpaginationParams = paginationParams;
-            bookStore.setPaginatedBooksParameters(paginationParams);
+            this.books.setQueryParameters(paginationParams);
         }
     }
 
     changePage = async (nextPage) => {
         if (nextPage) {
-            await bookStore.getNextPaginatedBooks();
+            await this.books.nextPage();
             return;
         }
-        await bookStore.getPreviousPaginatedBooks();
+        await this.books.previousPage();
     }
 
     public render() {
         const { sorting, pageSize } = this.state;
-        const { paginatedBooks, isFirstPaginatedBooksPage, isLastPaginatedBooksPage } = bookStore;
+
         return (
             <React.Fragment>
-                <Grid columns={this.columns} rows={paginatedBooks || []}>
+                <Grid columns={this.columns} rows={this.books.paginatedCollection || []}>
                     <RowDetailState />
                     <SortingState
                         sorting={sorting}
@@ -111,8 +119,8 @@ class BooksTable extends React.Component<any, IBooksTableState> {
                     pageSize={pageSize}
                     onPageSizeChanged={this.changePageSize}
                     onChangePage={this.changePage}
-                    isFirstPage={isFirstPaginatedBooksPage}
-                    isLastPage={isLastPaginatedBooksPage} />
+                    isFirstPage={this.books.isFirstPage}
+                    isLastPage={this.books.isLastPage} />
             </React.Fragment>
         );
     }

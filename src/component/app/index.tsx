@@ -8,7 +8,7 @@ import { Route, Switch } from 'react-router-dom';
 
 import { AppHeader, Main } from 'component/layout';
 
-import { Home, Library, About, Profile, Admin } from 'component/routes'
+import { Home, PublicLibrary, About, Profile, Admin } from 'component/routes'
 
 import { SignInDialog } from 'component/user'
 
@@ -43,9 +43,9 @@ class App extends React.Component<any, any> {
                 <Main>
                     <Switch>
                         <Route path='/' exact={true} component={Home} />
-                        <Route path='/library/:tab' component={Library} />
+                        <Route path='/library/:tab' component={PublicLibrary} />
                         <Route path='/about' exact={true} component={About} />
-                        <Route path='/profile' exact={true} component={Profile} />
+                        <Route path='/profile/:tab' exact={true} component={Profile} />
                         <PrivateRoute path='/admin' exact={true} component={Admin} />
                     </Switch>
                     <SignInDialog />

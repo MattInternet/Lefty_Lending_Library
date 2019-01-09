@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { withStyles, Select, MenuItem } from '@material-ui/core';
+import { withStyles, Select, MenuItem, Typography } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import NavigateBefore from '@material-ui/icons/NavigateBefore';
 import NavigateNext from '@material-ui/icons/NavigateNext';
@@ -8,6 +8,10 @@ const styles: any = (theme: any) => ({
     root: {
         display: 'flex',
         flexDirection: 'row'
+    },
+    label: {
+        alignSelf: 'center',
+        marginRight: theme.spacing.unit
     }
 });
 
@@ -21,11 +25,7 @@ export interface IPaginationControlsProps {
     onChangePage: (nextPage: boolean)=>any;
 }
 
-interface IPaginationControlsState {
-
-}
-
-class PaginationControls extends React.Component<IPaginationControlsProps, IPaginationControlsState> {
+class PaginationControls extends React.Component<IPaginationControlsProps, any> {
     
     handlePageSizeChanged = (event: any, child: any) => {
         this.props.onPageSizeChanged(child.props.value);
@@ -36,7 +36,8 @@ class PaginationControls extends React.Component<IPaginationControlsProps, IPagi
     }
 
     public render() {
-        const { classes,
+        const {
+            classes,
             pageSizeOptions,
             pageSize,
             isFirstPage,
@@ -45,6 +46,7 @@ class PaginationControls extends React.Component<IPaginationControlsProps, IPagi
 
         return (
             <div className={classes.root}>
+                <Typography variant="overline" className={classes.label}>Rows per page:</Typography>
                 <Select value={pageSize} onChange={this.handlePageSizeChanged}>
                     {pageSizeOptions.map(data => {
                         return <MenuItem key={data} value={data}>{data}</MenuItem>

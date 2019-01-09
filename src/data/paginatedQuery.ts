@@ -3,7 +3,6 @@ import { observable } from "mobx";
 import { TypedJSON } from "typedjson";
 import { DataUtils } from "./dataUtils";
 
-//Currently this doesnt actually let you 'Query' ironically. It lets you paginate and sort. But I plan to add the actual 'Queryness' to it 😅
 export class PaginatedQuery<T>{
 
 //#region public
@@ -37,8 +36,8 @@ export class PaginatedQuery<T>{
 
         this._paginatedQuerySubscription = this._filteredQuery.startAfter(this._cursors[this._currentPage -1]).onSnapshot((data)=> {
             this._cursors[this._currentPage] = data.docs[data.docs.length -2];
-            this.isLastPage = data.docs.length < this._paginationParameters.pageSize+1;
-            let items = this.parseItemsFromDocs(data.docs.splice(0, Math.min(data.docs.length, this._paginationParameters.pageSize) ));
+            this.isLastPage = data.docs.length < this._paginationParameters._pageSize+1;
+            let items = this.parseItemsFromDocs(data.docs.splice(0, Math.min(data.docs.length, this._paginationParameters._pageSize) ));
             this.paginatedCollection = items;
         })
     }
@@ -57,25 +56,35 @@ export class PaginatedQuery<T>{
             }
             
             this._cursors[this._currentPage] = data.docs[data.docs.length - 2];
-            this.isLastPage = data.docs.length < this._paginationParameters.pageSize+1;
-            let items = this.parseItemsFromDocs(data.docs.splice(0, Math.min(data.docs.length, this._paginationParameters.pageSize) ));
+            this.isLastPage = data.docs.length < this._paginationParameters._pageSize+1;
+            let items = this.parseItemsFromDocs(data.docs.splice(0, Math.min(data.docs.length, this._paginationParameters._pageSize) ));
             this.paginatedCollection = items;
         })
 
         this._currentPage = this._currentPage + 1;
     }
 
-    public setQueryParameters = (parameters: PaginationParameters) => {
+    public setQueryParameters = (parameters: PaginationParameters, preserveWhereClause: boolean = true) => {        
+        let whereClause = this._paginationParameters ? this._paginationParameters.whereClause : null;
         this._paginationParameters = parameters;
+        if(preserveWhereClause && whereClause){
+            this._paginationParameters.whereClause = whereClause;
+        }
+        
         this._cursors=[]
         this._currentPage=0;
         this.isFirstPage = true;
 
         this._filteredQuery = this._storage.collection(this._collectionName);
-        if(this._paginationParameters.sort){
-            this._filteredQuery = this._filteredQuery.orderBy(this._paginationParameters.sort.columnName, this._paginationParameters.sort.direction)
+
+        if(this._paginationParameters.whereClause){
+            this._filteredQuery = this._storage.collection(this._collectionName).where(this._paginationParameters.whereClause.fieldPath, this._paginationParameters.whereClause.operationString, this._paginationParameters.whereClause.value);
         }
-        this._filteredQuery = this._filteredQuery.limit(this._paginationParameters.pageSize+1);
+
+        if(this._paginationParameters._sort){
+            this._filteredQuery = this._filteredQuery.orderBy(this._paginationParameters._sort.columnName, this._paginationParameters._sort.direction)
+        }
+        this._filteredQuery = this._filteredQuery.limit(this._paginationParameters._pageSize+1);
 
         //unsubscribe if we are subscribed...
         if (this._paginatedQuerySubscription) {
@@ -84,9 +93,9 @@ export class PaginatedQuery<T>{
 
         this._paginatedQuerySubscription = this._filteredQuery.onSnapshot((data)=>{
             this._cursors[this._currentPage] = data.docs[data.docs.length - 2];
-            this.isLastPage = data.docs.length < this._paginationParameters.pageSize+1; //Maybe do some crazy shit like get 1 more that the page size, then set the curso one result behind to see if its rly the last page!?!?!? 🤯
+            this.isLastPage = data.docs.length < this._paginationParameters._pageSize+1; //Maybe do some crazy shit like get 1 more that the page size, then set the curso one result behind to see if its rly the last page!?!?!? 🤯
 
-            let items = this.parseItemsFromDocs(data.docs.splice(0, Math.min(data.docs.length, this._paginationParameters.pageSize) ));
+            let items = this.parseItemsFromDocs(data.docs.splice(0, Math.min(data.docs.length, this._paginationParameters._pageSize) ));
             this.paginatedCollection = items;
         });
     }

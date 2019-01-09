@@ -1,2 +1,3 @@
-export { UserLocation } from './UserLocation';
+export { UserLocation } from './UserLocation'; //TODO: Rename these with the correct 'I' notation...
 export { BookCondition } from './BookCondition';
+export { IFirebaseWhereClause } from './IFirebaseWhereClause'

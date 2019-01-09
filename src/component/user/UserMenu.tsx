@@ -81,7 +81,7 @@ class UserMenu extends React.Component<IUserMenuProps, any> {
 
     private handleNavigateToProfile = () => {
         this.handleClose();
-        this.props.routerStore!.history.push('/profile')
+        this.props.routerStore!.history.push('/profile/Books')
     }
 
     private handleNavigateToAdmin = () => {
