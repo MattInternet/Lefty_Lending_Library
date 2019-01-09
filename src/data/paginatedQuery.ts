@@ -48,18 +48,21 @@ export class PaginatedQuery<T>{
             return;
         }
         
+        this.isFirstPage = false;
+
         this._paginatedQuerySubscription = this._filteredQuery.startAfter(this._cursors[this._currentPage]).onSnapshot((data)=>{
             if(data.docs.length === 0){
                 this.isLastPage = true;
                 return;
             }
-            this.isFirstPage = false;
-            this._currentPage = this._currentPage + 1;
+            
             this._cursors[this._currentPage] = data.docs[data.docs.length - 2];
             this.isLastPage = data.docs.length < this._paginationParameters.pageSize+1;
             let items = this.parseItemsFromDocs(data.docs.splice(0, Math.min(data.docs.length, this._paginationParameters.pageSize) ));
             this.paginatedCollection = items;
         })
+
+        this._currentPage = this._currentPage + 1;
     }
 
     public setQueryParameters = (parameters: PaginationParameters) => {
