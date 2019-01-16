@@ -18,6 +18,9 @@ const styles: any = theme => ({
         display: 'flex',
         flexDirection: 'column',
         width: '100%'
+    },
+    addBookButton: {
+        alignSelf: 'center'
     }
 });
 
@@ -51,11 +54,12 @@ class Profile extends React.Component<IProfileRouteProps, IProfileRouteState> {
 
                 <AddContentDialog open={this.state.addContentOpen} onClose={this.setAddContentVisibility(false)}/>
 
-                <Button variant="contained" color="primary" onClick={this.setAddContentVisibility(true)}>
+                {/* <LenderContentGrid onAddContent={this.setAddContentVisibility}/> //TODO: Remove this :)*/}
+                <LibraryView variant={'user'} match={match} history={history}/>
+
+                <Button className={classes.addBookButton} variant="contained" color="primary" onClick={this.setAddContentVisibility(true)}>
                     Add A Book
                 </Button>
-                {/* <LenderContentGrid onAddContent={this.setAddContentVisibility}/> //TODO: Remove this :)*/} 
-                <LibraryView variant={'user'} match={match} history={history}/>
 
                 <Hidden mdUp>
                     {this.state.addContentOpen ?
