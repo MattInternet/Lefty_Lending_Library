@@ -6,6 +6,7 @@ export const styles: any = (theme: any) => ({
         bottom: 0,
         position: 'fixed',
         overflowY: 'hidden',
+        overflowX: 'hidden',
         display: 'flex',
         flexDirection: 'row',
         padding: theme.spacing.unit,

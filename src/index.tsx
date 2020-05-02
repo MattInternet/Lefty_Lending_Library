@@ -6,7 +6,7 @@ import './index.css';
 import registerServiceWorker from './registerServiceWorker';
 
 import * as stores from 'stores';
-import createBrowserHistory from 'history/createBrowserHistory';
+import { createBrowserHistory } from 'history';
 import { Provider } from 'mobx-react';
 import { syncHistoryWithStore } from 'mobx-react-router';
 

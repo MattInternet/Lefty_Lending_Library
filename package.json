@@ -14,42 +14,54 @@
     "@types/lodash": "^4.14.119",
     "@types/pubsub-js": "^1.5.18",
     "@types/react-helmet": "^5.0.7",
-    "@types/react-router": "^4.4.1",
-    "@types/react-router-dom": "^4.3.1",
+    "@types/react-router": "^5.1.7",
+    "@types/react-router-dom": "^5.1.5",
     "base-64": "^0.1.0",
-    "cross-env": "^5.2.0",
-    "firebase": "^5.7.0",
+    "cross-env": "^7.0.2",
+    "firebase": "^7.14.2",
     "history": "^4.7.2",
     "lodash": "^4.17.11",
     "mobx": "^5.7.0",
-    "mobx-react": "^5.2.8",
+    "mobx-react": "^6.2.2",
     "mobx-react-router": "^4.0.5",
-    "moment": "^2.23.0",
+    "moment": "2.24.0",
     "pubsub-js": "^1.7.0",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
-    "react-firebaseui": "^3.1.2",
-    "react-helmet": "^5.2.0",
-    "react-router": "^4.3.1",
-    "react-router-dom": "^4.3.1",
-    "react-scripts-ts": "3.1.0",
+    "react-firebaseui": "^4.1.0",
+    "react-helmet": "^6.0.0",
+    "react-router": "^5.1.2",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "^3.4.1",
     "typedjson": "^1.2.3"
   },
   "scripts": {
-    "start": "react-scripts-ts start",
-    "build": "react-scripts-ts build",
-    "build:staging": "cross-env REACT_APP_BUILD_ENV=staging react-scripts-ts build",
-    "test": "react-scripts-ts test --env=jsdom",
-    "eject": "react-scripts-ts eject",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "build:staging": "cross-env REACT_APP_BUILD_ENV=staging react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
     "predeploy": "yarn run build",
     "deploy": "gh-pages -b master -d build"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.10",
-    "@types/node": "^10.12.12",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.13.4",
     "@types/react": "^16.7.13",
     "@types/react-dom": "^16.0.11",
     "gh-pages": "^2.0.1",
     "typescript": "^3.2.1"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

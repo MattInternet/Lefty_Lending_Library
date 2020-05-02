@@ -9,15 +9,21 @@ const styles: any = (theme: any) => ({
         margin: 0,
     },
     tight: {
-        marginTop: -theme.spacing.unit,
         marginLeft: -theme.spacing.unit,
         marginRight: -theme.spacing.unit,
-        width: '105%', //Idk why it had to come to this... The negative margin didnt work here like it did in UserProfilePanel 😢
+        width: 'auto'
     }
 });
 
 interface ILibraryState {
     selectedTab: LibraryTabs
+}
+
+interface ILibraryProps {
+    match: any,
+    history: any,
+    classes: any,
+    variant: 'public' | 'user'
 }
 
 enum LibraryTabs {
@@ -36,7 +42,7 @@ function TabContainer(props) {
     );
   }
 
-class Library extends React.Component<any, ILibraryState> {
+class Library extends React.Component<ILibraryProps, ILibraryState> {
     async componentDidMount() {
         this.loadLibraryView();
     }
@@ -62,7 +68,8 @@ class Library extends React.Component<any, ILibraryState> {
     public render() {
         
         const {
-            classes
+            classes,
+            variant
         } = this.props;
 
         const { selectedTab } = this.state;
@@ -77,7 +84,7 @@ class Library extends React.Component<any, ILibraryState> {
                         <Tab label={LibraryTabs.Misc} value={LibraryTabs.Misc}/>
                     </Tabs>
                 </AppBar>
-                {selectedTab === LibraryTabs.Books && <BooksTable/>}
+                {selectedTab === LibraryTabs.Books && <BooksTable variant={variant}/>}
                 {selectedTab === LibraryTabs.Magazines && <TabContainer>Magazines</TabContainer>}
                 {selectedTab === LibraryTabs.PDFs && <TabContainer>PDFs</TabContainer>}
                 {selectedTab === LibraryTabs.Misc && <TabContainer>Miscellaneous</TabContainer>}

@@ -17,11 +17,11 @@ interface IUserSettingsPanelProps{
 class UserSettingsPanel extends React.Component<IUserSettingsPanelProps, any>{
 
     handleThemeToggle = async()=>{
-        if(userStore.userProfile!.Theme === 'light'){
-            userStore.setUserTheme('dark');
+        if(userStore.userProfile!.Theme === 'dark'){
+            userStore.setUserTheme('light');
             return;
         }
-        userStore.setUserTheme('light');
+        userStore.setUserTheme('dark');
     }
 
     public render() {
