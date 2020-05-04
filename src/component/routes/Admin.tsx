@@ -4,7 +4,7 @@ class Admin extends React.Component<any, any> {
     public render() {
         return(
             <div>
-                Admin page 😎
+                Admin page <span role="img" aria-label="awesome">😎</span>
             </div>
         )
     }

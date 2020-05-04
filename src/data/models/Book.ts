@@ -1,7 +1,7 @@
 import { jsonObject, jsonMember, jsonArrayMember } from "typedjson";
 import { computed } from "mobx";
 import { truncate } from 'lodash';
-import * as moment from 'moment';
+import moment from 'moment';
 
 export interface IBook {
     isbn13: string

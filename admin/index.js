@@ -21,8 +21,10 @@ switch (process.argv[2]) {
     databaseURL = "https://leftylendinglibrary-staging.firebaseio.com";
     break;
   default: //dev
-    serviceAccountJsonPath = "./LLL-serviceAccountKey.secret.json";
-    databaseURL = "https://leftylendinglibrary-c85d7.firebaseio.com";
+    // serviceAccountJsonPath = "./LLL-serviceAccountKey.secret.json";
+    // databaseURL = "https://leftylendinglibrary-c85d7.firebaseio.com";
+    serviceAccountJsonPath = "../src/firebasesecrets/leftylendinglibrary-ba29c77d2494.json";
+    databaseURL = "https://leftylendinglibrary.firebaseio.com";
 }
 
 var serviceAccount = require(serviceAccountJsonPath);
@@ -47,4 +49,15 @@ let uid = process.argv[4];
 // The new custom claims will propagate to the user's ID token the
 // next time a new one is issued.
 admin.auth().setCustomUserClaims(uid, { admin: upgrade }).then(()=> {
+console.log()
 })
+admin.auth().getUser(uid)
+  .then(async(userResult) => {
+     // Confirm the user is an Admin.
+     if (!!userResult) {
+       // Show admin UI.
+       console.log('user');
+       console.log(userResult);
+     }
+   })
+   .catch(err=>console.log(err))

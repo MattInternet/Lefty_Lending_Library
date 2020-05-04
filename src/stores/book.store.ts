@@ -53,7 +53,7 @@ export class BookStore{
 
     public getIsbn13 = (isbn: string) => {
         //TODO: If isbn is isbn13 return, if its isbn10 then make an isbn13 ;P Currently only supports ISBN10 and errors on 13
-        if(isbn.length != 13){
+        if(isbn.length !== 13){
             throw new Error('getIsbn13 isnt implemented yet 😱');
         }
         return isbn;

@@ -46,7 +46,7 @@ class AddContentDialog extends React.Component<IAddContentDialogProps, IAddConte
             alert('Please input an ISBN'); //TODO: Make the error display better
             return;
         }
-        if(this.state.pendingISBN.length != 13){
+        if(this.state.pendingISBN.length !== 13){
             alert('Only 13 digit ISBNs are supported (FOR THE MOMENT!)'); //TODO: Make the error display better
             return;
         }
@@ -89,7 +89,6 @@ class AddContentDialog extends React.Component<IAddContentDialogProps, IAddConte
 
     public render() {
         const { classes, open } = this.props;
-
         //Find the book
         if(!this.state.pendingBook){
             return (

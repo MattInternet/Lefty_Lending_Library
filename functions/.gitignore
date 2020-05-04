@@ -1,0 +1,17 @@
+## Compiled JavaScript files
+**/*.js
+**/*.js.map
+
+# Typescript v1 declaration files
+typings/
+
+.env
+node_modules/
+/node_modules
+lib/
+lib/*
+/lib
+/lib/*
+firebasesecrets
+firebasesecrets/
+firebasesecrets/*

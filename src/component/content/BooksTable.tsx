@@ -80,7 +80,7 @@ class BooksTable extends React.Component<IBooksTableProps, IBooksTableState> {
 
     updateData = () => {
         let paginationParams = this.generatePaginationParameters();
-        if (!paginationParams.equals(this.oldpaginationParams)) {
+        if (this.books && !paginationParams.equals(this.oldpaginationParams)) {
             this.oldpaginationParams = paginationParams;
             this.books.setQueryParameters(paginationParams);
         }
@@ -99,7 +99,7 @@ class BooksTable extends React.Component<IBooksTableProps, IBooksTableState> {
 
         return (
             <React.Fragment>
-                <Grid columns={this.columns} rows={this.books.paginatedCollection || []}>
+                <Grid columns={this.columns} rows={!this.books ? [] : this.books.paginatedCollection || []}>
                     <RowDetailState />
                     <SortingState
                         sorting={sorting}
@@ -119,8 +119,8 @@ class BooksTable extends React.Component<IBooksTableProps, IBooksTableState> {
                     pageSize={pageSize}
                     onPageSizeChanged={this.changePageSize}
                     onChangePage={this.changePage}
-                    isFirstPage={this.books.isFirstPage}
-                    isLastPage={this.books.isLastPage} />
+                    isFirstPage={this.books && this.books.isFirstPage}
+                    isLastPage={this.books && this.books.isLastPage} />
             </React.Fragment>
         );
     }

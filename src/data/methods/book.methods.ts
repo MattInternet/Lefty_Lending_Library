@@ -1,7 +1,7 @@
 import { Collections } from "data/collections";
 import { Book, BookLenderInfo } from "data/models";
 import { TypedJSON } from "typedjson";
-import * as firebase from "firebase";
+import * as firebase from "firebase/app";
 import { DataUtils } from "data/dataUtils";
 
 export class BookMethods{

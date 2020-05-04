@@ -24,12 +24,15 @@
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "emitDecoratorMetadata": true,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": [
+      "gapi", 
+    ]
   },
   "exclude": [
     "node_modules",

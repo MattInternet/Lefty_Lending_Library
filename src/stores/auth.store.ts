@@ -1,7 +1,11 @@
 import { observable, action, computed } from 'mobx';
-
-import { firebase, auth } from 'libs';
-
+// import functions from 'firebase-functions';
+// import gapi from 'gapi-client';
+// import $script from 'scriptjs';
+import { firebase, auth, functions } from 'libs';
+// import '@firebase/functions';
+import { authConfig } from 'config';
+// import * as serviceAccount from '../firebasesecrets/leftylendinglibrary-ba29c77d2494.json'
 import client from 'data/client';
 import {User} from 'data/models/User'
 import { IUserCreationInfo } from 'common';
@@ -65,17 +69,26 @@ export class AuthStore {
     }
 
     constructor() {
+      console.log(authConfig.scopes)
         this.uiConfig = {
             signInFlow: 'popup',
             signInOptions: [
                 firebase.auth.EmailAuthProvider.PROVIDER_ID,
-                firebase.auth.GoogleAuthProvider.PROVIDER_ID
+                {
+                  provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                  scopes: authConfig.scopes,
+                  discoveryDocs: authConfig.discoveryDocs
+                }
             ],
             callbacks: {
                 signInSuccessWithAuthResult: () => false,
             },
         };
-
+        // this.googleAuthConfig = {
+        //     apiKey: authConfig.apiKey,
+        //     clientId: authConfig.clientId,
+        //     scopes: authConfig.scopes
+        // }
         auth.onAuthStateChanged(this.onAuthChanged);
     }
 
@@ -158,15 +171,172 @@ export class AuthStore {
             return null;
         }
     }
+    
+    private authGoogleAPI = functions.httpsCallable('authgoogleapi');
 
+    // private syncGoogleSheet = async () => {
+    //   const getGoogleSheet = await firebase.functions.httpsCallable('authgoogleapi');
+    //   getGoogleSheet({sheetId: authConfig.spreadsheetId}).then(async result => {
+    //     await result.data.values
+    //     .map(async (row, i) => {
+    //       // Author(s) (or Editor(s) If There Is No Author)	
+    //       // Book Title	
+    //       // Editor(s) and/or Translator(s) (If Author Given)	
+    //       // Edition	
+    //       // Keywords	
+    //       // Physical Copy?	
+    //       // PDF Copy?	
+    //       // Free Online URL	
+    //       // # of copies	
+    //       // Lender	
+    //       // Borrower	
+    //       // Check Out Date	
+    //       // Return Date	
+    //       // Underlining Permitted?	
+    //       // Notes	
+    //       // ISBN (No Spaces/Dashes)																				
+    // 
+    //      let newRow: any = {};
+    //      let keys = [
+    //        'author',
+    //        'title',
+    //        'editor',
+    //        'edition',
+    //        'keywords',
+    //        'physical',
+    //        'pdf',
+    //        'url',
+    //        'copies',
+    //        'lender',
+    //        'borrower',
+    //        'checkout',
+    //        'return',
+    //        'underlining',
+    //        'notes',
+    //        'isbn',
+    //      ]
+    //       // let nullcount = 0;
+    //       await row.forEach(function(c, j){
+    //         // const authorKey = /author\(s\)/gi.test(c);
+    //         // const titleKey = /title/gi.test(c);
+    //         // const editorKey = /translator\(s\)/gi.test(c);
+    //         // const editionKey = /edition/gi.test(c);
+    //         // const keywordsKey = /keywords/gi.test(c);
+    //         // const physicalCopyKey = /physical\scopy/gi.test(c);
+    //         // const pdfCopyKey = /pdf\scopy/gi.test(c);
+    //         // const freeOnlineKey = /free\sonline/gi.test(c);
+    //         // const copiesKey = /of\scopies/gi.test(c);
+    //         // const lenderKey = /lender/gi.test(c);
+    //         // const borrowerKey = /borrower/gi.test(c);
+    //         // const checkoutKey = /check\sout/gi.test(c);
+    //         // const returnKey = /return\sdate/gi.test(c);
+    //         // const underliningPermittedKey = /underlining\spermitted/gi.test(c);
+    //         // const notesKey = /notes/gi.test(c);
+    //         // const isbnKey = /isbn/gi.test(c);
+    //         if (i === 2) {
+    //           hr.push(c)
+    //         } else if (i > 2){
+    //           if (!c || c === 'undefined') {
+    //             c = null;
+    //             // nullcount++;
+    //           }
+    //           newRow[keys[j]] = c;
+    //         }
+    //       });
+    //       if (i > 2){
+    //         console.log(newRow)
+    //         // await this.handleAddBook(newRow);
+    //       } 
+    //     });
+    // 
+    //   })
+    // }
+    
+    // async () => {
+    //   console.log('k')
+    //   var script = document.createElement("script");
+    //   script.type = "text/javascript";
+    //   script.src = "https://apis.google.com/js/api.js";
+    //   // Once the Google API Client is loaded, you can run your code
+    //   script.onload = function(e) {
+    //     gapi.load('client:auth2', ()=> {
+    //       gapi.client.init(authConfig)
+    //       .then(function() {
+    //           // Make sure the Google API Client is properly signed in
+    //           if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
+    //             console.log('ok')
+    //           } else {
+    //             // firebase.auth().signOut(); // Something went wrong, sign out
+    //           }
+    //         });;
+    //     })
+    //   }
+
+      // return functions.https.onRequest(async (req, res) => {
+      //   const header = req.get('Authorization');
+      //   let match: any = null;
+      //   if (header) {
+      //       match = header.match(/^Bearer\s+([^\s]+)$/);
+      //       const authClient = new google.auth.OAuth2();
+      //       await authClient.setCredentials({access_token: match});
+      //       const sheets = await google.sheets({
+      //         version: 'v4',
+      //         auth: authClient//process.env.REACT_APP_GOOGLE_KEY
+      //       })
+      //       console.log(sheets)
+      //       await sheets.spreadsheets.values
+      //       .get({
+      //         spreadsheetId: authConfig.spreadsheetId,
+      //         range: "Books"
+      //       })
+      //       .then(async (result) => {
+      //         // let hr: string[] = [];
+      //         if (!!result) {
+      //           console.log(result)
+      //         }
+              
+
+      // 
+      //       })
+      //       .catch(err=>console.log(err));
+      //   }
+      // })
+    // }
+    
     private determineAdminStatus = async (firebaseUser: firebase.User | null) => {
         if(firebaseUser){
-            firebaseUser.getIdToken().then((idToken)=> {
-                const payload = JSON.parse(base64.decode(idToken.split('.')[1]));
+            firebaseUser.getIdToken().then(async(idToken)=> {
+                const payload = await JSON.parse(base64.decode(idToken.split('.')[1]));
+                // console.log(payload)
+                // const oauth2Client = await new google.auth.OAuth2(
+                //   process.env.REACT_APP_GOOGLE_OAUTH_CLIENTID,
+                //   process.env.REACT_APP_GOOGLE_OAUTH_SECRET,
+                //   process.env.REACT_APP_GOOGLE_CALLBACK_URL_DEV
+                // );
+                // const header = req.get('Authorization');
+                // if (header) {
+                //     var match = header.match(/^Bearer\s+([^\s]+)$/);
+                //     if (match) {
+                //         return match[1];
+                //     }
+                // }
+                // const authresult = await oauth2Client.setCredentials(payload);
+                // const jwtAuth = await new google.auth.JWT(
+                //   serviceAccount.client_email, 
+                //   null,
+                //   serviceAccount.private_key,
+                //   authConfig.scopes 
+                // )
+                
+
+
                 this.isAdmin = payload['admin'] || false;
+                // this.syncGoogleSheet()
+                this.authGoogleAPI()
             });
         }
         this.isAdmin = false;
+        
     }
 
     //#endregion
@@ -196,7 +366,6 @@ export class AuthStore {
 
     @action
     private setNewUser = (newUser: boolean) => {
-        console.log('setNewUser', newUser);
         this.newUser = newUser;
     }
 

@@ -52,7 +52,7 @@ class BookDetails extends React.Component<IBookDetailsProps, any> {
             <div>
                 <Grid className={classes.root} container spacing={8}>
                     <Grid item xs={2}>
-                        <img src={book.ThumbnailURL ? book.ThumbnailURL : undefined} />
+                        <img alt={`Front cover for this book, ${book ? book.Title : 'is not available.'}`} src={book.ThumbnailURL ? book.ThumbnailURL : undefined} />
                     </Grid>
                     <Grid item xs={3}>
                         <Typography gutterBottom variant="h5">

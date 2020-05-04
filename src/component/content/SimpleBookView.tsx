@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Book } from 'data/models';
 import { withStyles, Grid, Typography, Chip, Paper, Tooltip } from '@material-ui/core';
 import PersonIcon from '@material-ui/icons/Person'
-import * as moment from 'moment';
+import moment from 'moment';
 
 const styles: any = theme => ({
     img: {
@@ -49,7 +49,7 @@ class SimpleBookView extends React.Component<ISimpleBookViewProps, any> {
                 <React.Fragment>
                     <Grid className={classes.paper} container spacing={16}>
                         <Grid item>
-                            <img src={this.props.book ? this.props.book.ThumbnailURL : undefined} />
+                            <img alt={`Front cover for this book, ${this.props.book ? this.props.book.Title : 'is not available.'}`} src={this.props.book ? this.props.book.ThumbnailURL : undefined} />
                         </Grid>
                         <Grid item xs={12} sm container>
                             <Grid item xs container direction="column" spacing={16}>
@@ -99,7 +99,7 @@ class SimpleBookView extends React.Component<ISimpleBookViewProps, any> {
                 <Paper className={classes.smallPaper}>
                     <Grid container spacing={16}>
                         <Grid item>
-                            <img src={this.props.book ? this.props.book.ThumbnailURL : undefined} />
+                            <img alt={`Front cover for this book, ${this.props.book ? this.props.book.Title : 'is not available.'}`} src={this.props.book ? this.props.book.ThumbnailURL : undefined} />
                         </Grid>
                         <Grid item xs={12} sm container>
                             <Grid item xs container direction="column" spacing={16}>

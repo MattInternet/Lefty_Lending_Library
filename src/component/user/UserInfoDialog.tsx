@@ -88,7 +88,7 @@ class UserInfoDialog extends React.Component<ISignInDialogProps, IUserCreationIn
             <DialogTitle>User Information</DialogTitle>
             <DialogContent className={classes.userInfoDialog}>
                 <DialogContentText>
-                    In order to Lend (or Borrow) content from the LLL we need a bit of information. We'll never spam you! 🌹
+                    In order to Lend (or Borrow) content from the LLL we need a bit of information. We'll never spam you! <span role="img" aria-label="rose"> 🌹 </span>
                 </DialogContentText>
                 <TextField
                     error={this.state.nameError}
@@ -128,7 +128,9 @@ class UserInfoDialog extends React.Component<ISignInDialogProps, IUserCreationIn
             </DialogContent>
             <DialogActions>
                 <Button onClick={this.handleFormSubmission} color="primary">
-                    🌹 Join 🤝🏻
+                    <span role="img" aria-label="rose">🌹</span>
+                    <span>Join</span> 
+                    <span role="img" aria-label="handshake">🤝🏻</span>
                     </Button>
             </DialogActions>
         </Dialog>

@@ -3,6 +3,14 @@
 # dependencies
 /node_modules
 admin/node_modules
+functions/node_modules
+functions/node_modules/
+/functions/node_modules
+/functions/node_modules/
+functions/lib/
+functions/lib/*
+/functions/lib
+/functions/lib/*
 
 # testing
 /coverage
@@ -23,5 +31,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .firebase/*
+src/firebasesecrets
+src/firebasesecrets/*
 /src/firebasesecrets
 /src/firebasesecrets/*
