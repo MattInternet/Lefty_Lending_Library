@@ -2,7 +2,11 @@ import { observable, action, computed } from 'mobx';
 // import functions from 'firebase-functions';
 // import gapi from 'gapi-client';
 // import $script from 'scriptjs';
-import { firebase, auth, functions } from 'libs';
+import { 
+  firebase, 
+  auth, 
+  functions 
+} from 'libs';
 // import '@firebase/functions';
 import { authConfig } from 'config';
 // import * as serviceAccount from '../firebasesecrets/leftylendinglibrary-ba29c77d2494.json'
@@ -68,6 +72,8 @@ export class AuthStore {
         return this.firebaseUser !== null;
     }
 
+    public functions: any = functions;
+    
     constructor() {
       console.log(authConfig.scopes)
         this.uiConfig = {
@@ -172,8 +178,11 @@ export class AuthStore {
         }
     }
     
-    private authGoogleAPI = functions.httpsCallable('authgoogleapi');
-
+    private httpsCallable = async (type: string) => {
+      const callable = await functions.httpsCallable(type);
+      return callable;
+    } 
+    
     // private syncGoogleSheet = async () => {
     //   const getGoogleSheet = await firebase.functions.httpsCallable('authgoogleapi');
     //   getGoogleSheet({sheetId: authConfig.spreadsheetId}).then(async result => {
@@ -332,7 +341,19 @@ export class AuthStore {
 
                 this.isAdmin = payload['admin'] || false;
                 // this.syncGoogleSheet()
-                this.authGoogleAPI()
+                // try {
+                //   this.authGoogleAPI().then(async (result: any) => {
+                //     console.log(result)
+                //   })
+                // } catch(err) {
+                //   console.log(err)
+                // }
+                
+                
+                // let func = this.functions.httpsCallable('authgoogleapi');
+                this.httpsCallable('authgoogleapi').then(result => console.log(result))
+                .catch(err => console.log(err))
+                
             });
         }
         this.isAdmin = false;

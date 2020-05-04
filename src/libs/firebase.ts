@@ -2,7 +2,7 @@ import * as firebase from 'firebase/app';
 import '@firebase/auth';
 import '@firebase/firestore';
 import '@firebase/functions';
-import * as admin from 'firebase-admin';
+// import * as admin from 'firebase-admin';
 
 import { authConfig } from '../config';
 
@@ -17,5 +17,5 @@ export {
     auth,
     storage,
     functions,
-    admin
+    // admin
 };
