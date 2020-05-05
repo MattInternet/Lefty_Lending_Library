@@ -16,14 +16,149 @@
 'use strict';
 
 // Sample trigger function that copies new Firebase data to a Google Sheet
-
+const express = require('express');
+const cors = require('cors');
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
-// const {OAuth2Client} = require('google-auth-library');
-// const {google} = require('googleapis');
-const { googleOAuth } = require('app');
+const {OAuth2Client} = require('google-auth-library');
+const {google} = require('googleapis');
+// const { googleOAuth } = require('./app');
 
+const DB_TOKEN_PATH = '/api_tokens';
+// TODO: Use firebase functions:config:set to configure your googleapi object:
+// googleapi.client_id = Google API client ID,
+// googleapi.client_secret = client secret, and
+// googleapi.sheet_id = Google Sheet id (long string in middle of sheet URL)
+const CONFIG_CLIENT_ID = functions.config().googleapi.client_id;
+const CONFIG_CLIENT_SECRET = functions.config().googleapi.client_secret;
+const CONFIG_SHEET_ID = functions.config().googleapi.sheet_id;
+
+// TODO: Use firebase functions:config:set to configure your watchedpaths object:
+// watchedpaths.data_path = Firebase path for data to be synced to Google Sheet
+// const CONFIG_DATA_PATH = functions.config().watchedpaths.data_path;
+
+// The OAuth Callback Redirect.
+const FUNCTIONS_REDIRECT = `https://${process.env.GCLOUD_PROJECT}.firebaseapp.com/oauthcallback`;
+
+// setup for authGoogleAPI
+const SCOPES = ['https://www.googleapis.com/auth/spreadsheets',"email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"];
+const functionsOauthClient = new OAuth2Client(CONFIG_CLIENT_ID, CONFIG_CLIENT_SECRET,
+  FUNCTIONS_REDIRECT);
+
+const googleOAuth = express();
+googleOAuth.use(cors({origin: true}));
+googleOAuth.get('*', (req: any, res: any) => {
+  res.send(
+    'Hello from Express on Firebase with CORS! No trailing \'/\' required!'
+  );
+});
+
+// OAuth token cached locally.
+// let oauthTokens: any = null;
+
+// Automatically allow cross-origin requests
+googleOAuth.use(cors({ origin: true }));
+
+// build multiple CRUD interfaces:
+googleOAuth.get('/authgoogleapi', (req: any, res: any) => {
+	res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
+  res.redirect(functionsOauthClient.generateAuthUrl({
+    access_type: 'offline',
+    scope: SCOPES,
+    prompt: 'consent',
+  }));
+});
+googleOAuth.get('/oauthcallback', async (req: any, res: any) => {
+	res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
+  const code = req.query.code;
+  // try {
+    return res.redirect(`/getgooglesheet/${code}`)
+
+		// res.status(200).send('App successfully configured with new Credentials. '
+    //     + 'You can now close this page.');
+  // } catch (error: any) {
+  //   return res.status(400).send(error);
+  // }
+});
+googleOAuth.get('/getgooglesheet/:code', async(req: any, res: any) => {
+  const code = req.params.code;
+  const {tokens} = await functionsOauthClient.getToken(code);
+  functionsOauthClient.setCredentials({refresh_token: tokens.refresh_token, access_token: tokens.access_token});
+  // Now tokens contains an access_token and an optional refresh_token. Save them.
+  await admin.database().ref(DB_TOKEN_PATH).set(tokens);
+  const sheets = await google.sheets({
+    auth: functionsOauthClient,
+    version: 'v4'
+  });
+  console.log(sheets)
+  sheets.spreadsheets.values
+  .get({
+    spreadsheetId: CONFIG_SHEET_ID,//authConfig.spreadsheetId,
+    range: "Books"
+  })
+  .then(async (result: any) => {
+    // let hr: string[] = [];
+    if (!!result) {
+        await result.data.values
+        .map(async (row: any, i: number) => {
+             const newRow: any = {};
+             const keys = [
+               'author',
+               'title',
+               'editor',
+               'edition',
+               'keywords',
+               'physical',
+               'pdf',
+               'url',
+               'copies',
+               'lender',
+               'borrower',
+               'checkout',
+               'return',
+               'underlining',
+               'notes',
+               'isbn',
+             ]
+             await row.forEach(function(c: any, j: number){
+                let d = c;
+                if (i > 2){
+                  if (!c || c === 'undefined') {
+                    d = null;
+                    // nullcount++;
+                  }
+                  newRow[keys[j]] = d;
+                }
+              });
+              if (i > 2){
+                console.log(newRow)
+                // await this.handleAddBook(newRow);
+              } 
+        });
+        return res.status(200).send(result)
+    }
+  })
+  .catch((err: any) =>{
+    return res.status(400).send('couldnt connect');
+  });
+})
+
+googleOAuth.get('/', (req: any, res: any) => {
+  return res.redirect('/leftylendinglibrary/us-central1/authgoogleapi/')
+})
+
+// catch 404 and forward to error handler
+googleOAuth.use(function (req: any, res: any, next: any) {
+  const err = new Error('Not Found');
+  next(err);
+});
+
+// error handlers
+googleOAuth.use(function (err: any, req: any, res: any) {
+  // const errMsg = new Error(err)
+  return res.status(400).send('api not working');
+});
 
 // // visit the URL for this Function to request tokens
 // exports.authgoogleapi = functions.https.onRequest((req: any, res: any) => {
@@ -112,8 +247,22 @@ const { googleOAuth } = require('app');
 //   res.send(`Wrote ${random1}, ${random2}, ${random3} to DB, trigger should now update Sheet.`);
 // });
 
+// const googleOAuthCaller = functions.https.onRequest((request: any, response: any) => {
+//   if (!request.path) {
+//     request.url = `/${request.url}`; // Prepend '/' to keep query params if any
+//   }
+//   return googleOAuth(request, response)
+// })
+const googleoauthcaller = functions.https.onRequest((request: any, response: any) => {
+    if (!request.path) {
+      request.url = `/${request.url}`; // Prepend '/' to keep query params if any
+    }
 
-exports.googleOAuthCaller = functions.https.onRequest(googleOAuth)
+    return googleOAuth(request, response);
+})
+
+exports.googleoauthcaller = googleoauthcaller;
+// googleOAuthCaller
 // export functions.https.onRequest(app)
 
 
@@ -170,7 +319,3 @@ exports.googleOAuthCaller = functions.https.onRequest(googleOAuth)
 // 	});
 // 
 // })
-// // // .onRequest((request, response) => {
-// // 
-// //  // response.send("Hello from Firebase!");
-// // });

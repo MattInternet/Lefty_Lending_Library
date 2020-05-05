@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { withStyles, Button } from '@material-ui/core';
-import { functions } from 'libs';
+// import { functions } from 'libs';
 const styles: any = theme => ({
     googleSheetButton: {
         alignSelf: 'center'
@@ -8,20 +8,10 @@ const styles: any = theme => ({
 });
 
 class Admin extends React.Component<any, any> {
-    private getGoogleSheet = () => {
+    private getGoogleSheet = async () => {
+      // TODO
       return;
     }
-
-    private httpsCallable = async (type: string) => {
-      const callable = await functions.httpsCallable(type);
-      return callable;
-    } 
-    
-    componentDidMount() {
-      this.httpsCallable('oauthcallback').then(result => console.log(result))
-      .catch(err => console.log(err))
-    }
-    
     
     public render() {
         return(

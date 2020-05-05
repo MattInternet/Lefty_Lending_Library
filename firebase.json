@@ -16,16 +16,16 @@
         "destination": "/index.html"
       },
       {
-        "source": "/admin",
-        "function": "oauthcallback"
+        "source": "/googleoauthcaller",
+        "function": "googleoauthcaller"
       },
       {
         "source": "/authgoogleapi",
-        "function": "authgoogleapi"
+        "function": "googleoauthcaller"
       },
       {
         "source": "/oauthcallback",
-        "function": "oauthcallback"
+        "function": "googleoauthcaller"
       }
     ]
   },
@@ -33,7 +33,7 @@
     "rules": "storage.rules"
   },
   "functions": {
-    "source": "functions"
+    "source": "functions",
     "predeploy": [
       "npm --prefix \"$RESOURCE_DIR\" run lint",
       "npm --prefix \"$RESOURCE_DIR\" run build"

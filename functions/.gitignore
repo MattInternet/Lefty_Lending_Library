@@ -15,3 +15,9 @@ lib/*
 firebasesecrets
 firebasesecrets/
 firebasesecrets/*
+.runtimeconfig.json
+./.runtimeconfig.json
+firestore-debug.log
+./firestore-debug.log
+firebase-debug.log
+./firebase-debug.log

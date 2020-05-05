@@ -18,26 +18,8 @@ else if(buildType === "staging"){
 }
 //Dev
 else {
-  // const serviceAccount = require('../firebasesecrets/leftylendinglibrary-ba29c77d2494.json')
-  // config = { 
-  //   databaseURL: "https://leftylendinglibrary.firebaseio.com",
-  //   credential:  admin.credential.cert(serviceAccount)
-  // }//JSON.parse(process.env.FIREBASE_CONFIG);
-  // console.log(adminConfig);
-  // adminConfig.credential = admin.credential.cert(serviceAccount);
-  const firebaseConfig = require('../firebasesecrets/leftylendinglibrary_firebaseConfig.json')
+    const firebaseConfig = require('../firebasesecrets/leftylendinglibrary_firebaseConfig.json')
     config = firebaseConfig
-    
-    //adminConfig//
-    // JSON.parse(JSON.stringify(firebaseConfig));
-    // {
-    //     apiKey: "AIzaSyAwA1MMLiWA19hmOwNOyAtmG2lW_Uuh3gc",
-    //     authDomain: "leftylendinglibrary-c85d7.firebaseapp.com",
-    //     databaseURL: "https://leftylendinglibrary-c85d7.firebaseio.com",
-    //     projectId: "leftylendinglibrary-c85d7",
-    //     storageBucket: "leftylendinglibrary-c85d7.appspot.com",
-    //     messagingSenderId: "977740674552"
-    // }
 }
 
 export const authConfig = config;
