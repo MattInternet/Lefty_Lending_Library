@@ -29,10 +29,7 @@
     "strict": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "types": [
-      "gapi", 
-    ]
+    "noEmit": true
   },
   "exclude": [
     "node_modules",

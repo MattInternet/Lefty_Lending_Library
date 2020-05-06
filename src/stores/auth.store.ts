@@ -1,4 +1,5 @@
 import { observable, action, computed } from 'mobx';
+import fetch from 'node-fetch';
 import { 
   firebase, 
   auth, 
@@ -80,7 +81,8 @@ export class AuthStore {
                 {
                   provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
                   scopes: authConfig.scopes,
-                  discoveryDocs: authConfig.discoveryDocs
+                  discoveryDocs: authConfig.discoveryDocs,
+                  spreadsheetId: authConfig.spreadsheetId
                 }
             ],
             callbacks: {
@@ -175,10 +177,10 @@ export class AuthStore {
         }
     }
     
-    private httpsCallable = async (type: string) => {
-      const callable = await functions.httpsCallable(type);
-      return callable;
-    } 
+    // private httpsCallable = async (type: string) => {
+    //   const callable = await functions.httpsCallable(type);
+    //   return callable;
+    // } 
     
     
     private determineAdminStatus = async (firebaseUser: firebase.User | null) => {
@@ -186,11 +188,62 @@ export class AuthStore {
             firebaseUser.getIdToken().then(async(idToken)=> {
                 const payload = await JSON.parse(base64.decode(idToken.split('.')[1]));
                 this.isAdmin = payload['admin'] || false;
+                const appurl = 'https://us-central1-leftylendinglibrary.cloudfunctions.net/leftylendinglibrary/us-central1'
                 if (!!this.isAdmin) {
-                    this.httpsCallable('googleoauthcaller').then(result => {
-                      console.log(result)
-                    })
-                    .catch(err => console.log(err))
+                      await fetch(`${appurl}/authgoogleapi`)
+                      // this.httpsCallable('authgoogleapi')
+                      // callable.call('/authgoogleapi')
+                      .then(async(res: any) => {
+                          console.log(res);
+                          // const callable2 = await this.httpsCallable('googleoauthcaller');
+                          await fetch(`${appurl}/getgooglesheet/${this.uiConfig.signInOptions[1].spreadsheetId}`).then(async (result: any)=> {
+                          // this.httpsCallable(`getgooglesheet/${this.uiConfig.signInOptions[1].spreadsheetId}`).then(async (result: any)=> {
+                              console.log(result)
+                              if (!!result && !!result.data) {
+                                  const data = result.data;
+                                  await data.values
+                                  .forEach(async (row: any, i: number) => {
+                                       const newRow: any = {};
+                                       const keys = [
+                                         'author',
+                                         'title',
+                                         'editor',
+                                         'edition',
+                                         'keywords',
+                                         'physical',
+                                         'pdf',
+                                         'url',
+                                         'copies',
+                                         'lender',
+                                         'borrower',
+                                         'checkout',
+                                         'return',
+                                         'underlining',
+                                         'notes',
+                                         'isbn',
+                                       ]
+                                       await row.forEach(function(c: any, j: number){
+                                          let d = c;
+                                          if (i > 2){
+                                            if (!c || c === 'undefined') {
+                                              d = null;
+                                              // nullcount++;
+                                            }
+                                            newRow[keys[j]] = d;
+                                          }
+                                        });
+                                        if (i > 2){
+                                          console.log(newRow)
+                                          // await this.handleAddBook(newRow);
+                                        } 
+                                  });
+                              }
+
+                          })
+                          .catch(err => console.log(err))
+
+                      })
+                      .catch(err => console.log(err))
                 }
             });
         }

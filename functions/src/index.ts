@@ -48,11 +48,11 @@ const functionsOauthClient = new OAuth2Client(CONFIG_CLIENT_ID, CONFIG_CLIENT_SE
 
 const googleOAuth = express();
 googleOAuth.use(cors({origin: true}));
-googleOAuth.get('*', (req: any, res: any) => {
-  res.send(
-    'Hello from Express on Firebase with CORS! No trailing \'/\' required!'
-  );
-});
+// googleOAuth.get('*', (req: any, res: any) => {
+//   res.send(
+//     'Hello from Express on Firebase with CORS! No trailing \'/\' required!'
+//   );
+// });
 
 // OAuth token cached locally.
 // let oauthTokens: any = null;
@@ -60,6 +60,7 @@ googleOAuth.get('*', (req: any, res: any) => {
 // Automatically allow cross-origin requests
 googleOAuth.use(cors({ origin: true }));
 
+googleOAuth.use((req: any, res: any) => res.set({'Access-Control-Allow-Origin': '*'}));
 // build multiple CRUD interfaces:
 googleOAuth.get('/authgoogleapi', (req: any, res: any) => {
 	res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
@@ -100,42 +101,6 @@ googleOAuth.get('/getgooglesheet/:code', async(req: any, res: any) => {
   .then(async (result: any) => {
     // let hr: string[] = [];
     if (!!result) {
-        await result.data.values
-        .map(async (row: any, i: number) => {
-             const newRow: any = {};
-             const keys = [
-               'author',
-               'title',
-               'editor',
-               'edition',
-               'keywords',
-               'physical',
-               'pdf',
-               'url',
-               'copies',
-               'lender',
-               'borrower',
-               'checkout',
-               'return',
-               'underlining',
-               'notes',
-               'isbn',
-             ]
-             await row.forEach(function(c: any, j: number){
-                let d = c;
-                if (i > 2){
-                  if (!c || c === 'undefined') {
-                    d = null;
-                    // nullcount++;
-                  }
-                  newRow[keys[j]] = d;
-                }
-              });
-              if (i > 2){
-                console.log(newRow)
-                // await this.handleAddBook(newRow);
-              } 
-        });
         return res.status(200).send(result)
     }
   })

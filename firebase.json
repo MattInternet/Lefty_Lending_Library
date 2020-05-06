@@ -16,6 +16,10 @@
         "destination": "/index.html"
       },
       {
+        "source": "/getgooglesheet/:code",
+        "function": "googleoauthcaller"
+      },
+      {
         "source": "/googleoauthcaller",
         "function": "googleoauthcaller"
       },

@@ -1913,11 +1913,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/gapi@^0.0.39":
-  version "0.0.39"
-  resolved "https://registry.yarnpkg.com/@types/gapi/-/gapi-0.0.39.tgz#bc7fa8cd0cb175b36e3609790fb2ed73a33f6881"
-  integrity sha512-R1TZeZbvvbIC60DBJMhuOEivQHzOQtzl3uMDOOENTYQTSSDB6oEMpJo8HVPOTWivdUTbyEcB5qQOVr/JCKRlCQ==
-
 "@types/glob@^7.1.1":
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/@types/glob/-/glob-7.1.1.tgz#aa59a1c6e3fbc421e07ccd31a944c30eba521575"
@@ -5563,11 +5558,6 @@ functional-red-black-tree@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
   integrity sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=
-
-gapi-client@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/gapi-client/-/gapi-client-0.0.3.tgz#f7bc70ad06dd9ebdf57b5825ca008205deb911bf"
-  integrity sha1-97xwrQbdnr31e1glygCCBd65Eb8=
 
 gaxios@^2.0.0, gaxios@^2.1.0:
   version "2.3.4"
