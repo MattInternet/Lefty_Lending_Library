@@ -16,13 +16,18 @@
 'use strict';
 
 // Sample trigger function that copies new Firebase data to a Google Sheet
+// const Logging: any = require('@google-cloud/logging');
+import * as cors from 'cors';
+const corsHandler = cors({origin: true});
 const express = require('express');
-const cors = require('cors');
+// const cors = require('cors')({origin:true});
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 const {OAuth2Client} = require('google-auth-library');
 const {google} = require('googleapis');
+
+// const logging = Logging();
 // const { googleOAuth } = require('./app');
 
 const DB_TOKEN_PATH = '/api_tokens';
@@ -46,7 +51,28 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets',"email","openid",
 const functionsOauthClient = new OAuth2Client(CONFIG_CLIENT_ID, CONFIG_CLIENT_SECRET,
   FUNCTIONS_REDIRECT);
 
+// interface ErrnoException extends Error {
+//     status: number;
+//     message: string;
+//     // constructor(status: number, message: string) {
+//     //   super(message);
+//     //   this.status = status;
+//     //   this.message = message;
+//     // }
+// }
+// 
+// interface Metadata {
+//   resource?: any;
+// };
+// 
+// // https://cloud.google.com/error-reporting/reference/rest/v1beta1/ErrorEvent
+// interface ErrnoEvent {
+//   message: any;
+//   serviceContext?: any;
+//   context: string;
+// };
 const googleOAuth = express();
+
 googleOAuth.use(cors({origin: true}));
 // googleOAuth.get('*', (req: any, res: any) => {
 //   res.send(
@@ -60,7 +86,7 @@ googleOAuth.use(cors({origin: true}));
 // Automatically allow cross-origin requests
 googleOAuth.use(cors({ origin: true }));
 
-googleOAuth.use((req: any, res: any) => res.set({'Access-Control-Allow-Origin': '*'}));
+googleOAuth.use((req: any, res: any) => res.set('Access-Control-Allow-Origin', req.url));
 // build multiple CRUD interfaces:
 googleOAuth.get('/authgoogleapi', (req: any, res: any) => {
 	res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
@@ -83,6 +109,7 @@ googleOAuth.get('/oauthcallback', async (req: any, res: any) => {
   // }
 });
 googleOAuth.get('/getgooglesheet/:code', async(req: any, res: any) => {
+  res.set('Access-Control-Allow-Origin', req.url);
   const code = req.params.code;
   const {tokens} = await functionsOauthClient.getToken(code);
   functionsOauthClient.setCredentials({refresh_token: tokens.refresh_token, access_token: tokens.access_token});
@@ -102,10 +129,13 @@ googleOAuth.get('/getgooglesheet/:code', async(req: any, res: any) => {
     // let hr: string[] = [];
     if (!!result) {
         return res.status(200).send(result)
+    } else {
+        return res.status(200).send('nope')
     }
   })
   .catch((err: any) =>{
     return res.status(400).send('couldnt connect');
+    // return reportError(err, {function: `/getgooglesheet/${code}`});
   });
 })
 
@@ -113,17 +143,55 @@ googleOAuth.get('/', (req: any, res: any) => {
   return res.redirect('/leftylendinglibrary/us-central1/authgoogleapi/')
 })
 
-// catch 404 and forward to error handler
-googleOAuth.use(function (req: any, res: any, next: any) {
-  const err = new Error('Not Found');
-  next(err);
-});
+// function reportError(err: ErrnoException, context: any): Promise<ErrnoEvent|null> {
+//   // This is the name of the StackDriver log stream that will receive the log
+//   // entry. This name can be any valid log stream name, but must contain "err"
+//   // in order for the error to be picked up by StackDriver Error Reporting.
+//   const logName = 'errors';
+//   const log = logging.log(logName);
+// 
+//   // https://cloud.google.com/logging/docs/api/ref_v2beta1/rest/v2beta1/MonitoredResource
+//   const metadata: Metadata = {
+//     resource: {
+//       type: 'cloud_function',
+//       labels: {function_name: process.env.FUNCTION_NAME},
+//     },
+//   };
+// 
+//   // https://cloud.google.com/error-reporting/reference/rest/v1beta1/ErrorEvent
+//   const errorEvent: ErrnoEvent = {
+//     message: err.stack,
+//     serviceContext: {
+//       service: process.env.FUNCTION_NAME,
+//       resourceType: 'cloud_function',
+//     },
+//     context: context,
+//   };
+// 
+//   // Write the error log entry
+//   return new Promise((resolve, reject) => {
+//     log.write(log.entry(metadata, errorEvent), (error: any) => {
+//       if (error) {
+//             reject(error);
+//             return    
+//       }
+//       resolve();
+//       return 
+//     });
+//   });
+// }
 
-// error handlers
-googleOAuth.use(function (err: any, req: any, res: any) {
-  // const errMsg = new Error(err)
-  return res.status(400).send('api not working');
-});
+// // catch 404 and forward to error handler
+// googleOAuth.use(function (req: any, res: any, next: any) {
+//   const err = new Error('Not Found');
+//   next(err);
+// });
+// 
+// // error handlers
+// googleOAuth.use(function (err: any, req: any, res: any) {
+//   // const errMsg = new Error(err)
+//   return res.status(400).send('api not working');
+// });
 
 // // visit the URL for this Function to request tokens
 // exports.authgoogleapi = functions.https.onRequest((req: any, res: any) => {
@@ -219,6 +287,9 @@ googleOAuth.use(function (err: any, req: any, res: any) {
 //   return googleOAuth(request, response)
 // })
 const googleoauthcaller = functions.https.onRequest((request: any, response: any) => {
+    corsHandler(request, response, () => {
+        console.log(request)
+    });
     if (!request.path) {
       request.url = `/${request.url}`; // Prepend '/' to keep query params if any
     }
@@ -233,7 +304,7 @@ exports.googleoauthcaller = googleoauthcaller;
 
 
 // // import { 
-// // 	// firebase, 
+// // 	// firebase, corsHandler(request, response, () => {});
 // // 	// admin, 
 // // 	functions, 
 // // 	// auth 
