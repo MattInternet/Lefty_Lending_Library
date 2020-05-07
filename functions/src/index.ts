@@ -51,45 +51,23 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets',"email","openid",
 const functionsOauthClient = new OAuth2Client(CONFIG_CLIENT_ID, CONFIG_CLIENT_SECRET,
   FUNCTIONS_REDIRECT);
 
-// interface ErrnoException extends Error {
-//     status: number;
-//     message: string;
-//     // constructor(status: number, message: string) {
-//     //   super(message);
-//     //   this.status = status;
-//     //   this.message = message;
-//     // }
-// }
-// 
-// interface Metadata {
-//   resource?: any;
-// };
-// 
-// // https://cloud.google.com/error-reporting/reference/rest/v1beta1/ErrorEvent
-// interface ErrnoEvent {
-//   message: any;
-//   serviceContext?: any;
-//   context: string;
-// };
+const appurl = process.env.REACT_APP_BUILD_ENV === 'development' ?
+  'http://localhost:5002'
+  : 'https://us-central1-leftylendinglibrary.cloudfunctions.net'
 const googleOAuth = express();
 
 googleOAuth.use(cors({origin: true}));
-// googleOAuth.get('*', (req: any, res: any) => {
-//   res.send(
-//     'Hello from Express on Firebase with CORS! No trailing \'/\' required!'
-//   );
-// });
-
-// OAuth token cached locally.
-// let oauthTokens: any = null;
 
 // Automatically allow cross-origin requests
 googleOAuth.use(cors({ origin: true }));
 
-googleOAuth.use((req: any, res: any) => res.set('Access-Control-Allow-Origin', req.url));
+googleOAuth.use((req: any, res: any) => {
+    res.set('Access-Control-Allow-Origin', appurl)
+});
 // build multiple CRUD interfaces:
 googleOAuth.get('/authgoogleapi', (req: any, res: any) => {
-	res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
+    res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
+    res.set('Access-Control-Allow-Origin', appurl)
   res.redirect(functionsOauthClient.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES,
@@ -97,51 +75,79 @@ googleOAuth.get('/authgoogleapi', (req: any, res: any) => {
   }));
 });
 googleOAuth.get('/oauthcallback', async (req: any, res: any) => {
-	res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
-  const code = req.query.code;
-  // try {
+    res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
+    res.set('Access-Control-Allow-Origin', appurl)
+    const code = req.query.code;
     return res.redirect(`/getgooglesheet/${code}`)
-
-		// res.status(200).send('App successfully configured with new Credentials. '
-    //     + 'You can now close this page.');
-  // } catch (error: any) {
-  //   return res.status(400).send(error);
-  // }
 });
-googleOAuth.get('/getgooglesheet/:code', async(req: any, res: any) => {
-  res.set('Access-Control-Allow-Origin', req.url);
-  const code = req.params.code;
-  const {tokens} = await functionsOauthClient.getToken(code);
-  functionsOauthClient.setCredentials({refresh_token: tokens.refresh_token, access_token: tokens.access_token});
-  // Now tokens contains an access_token and an optional refresh_token. Save them.
-  await admin.database().ref(DB_TOKEN_PATH).set(tokens);
-  const sheets = await google.sheets({
-    auth: functionsOauthClient,
-    version: 'v4'
-  });
-  console.log(sheets)
-  sheets.spreadsheets.values
-  .get({
-    spreadsheetId: CONFIG_SHEET_ID,//authConfig.spreadsheetId,
-    range: "Books"
-  })
-  .then(async (result: any) => {
-    // let hr: string[] = [];
-    if (!!result) {
-        return res.status(200).send(result)
+
+function getBuffer(sheets: any) {
+    return new Promise((resolve, reject) => {
+        sheets.spreadsheets.values
+        .get({
+            spreadsheetId: CONFIG_SHEET_ID,//authConfig.spreadsheetId,
+            range: "Books"
+        }, async (err: any, result: any) => {
+            if (err) {
+                reject()
+            }
+            let buf: any = [];
+            result.on("data", function(e: any) {
+              buf.push(e);
+            });
+            result.on("end", function() {
+              const buffer = Buffer.concat(buf);
+              console.log(buffer);
+              // fs.writeFile("filename", buffer, err => console.log(err)); // For testing
+              resolve(buffer)
+              // return res.status(200).send(result)
+            });
+        })
+    })
+}
+googleOAuth.get('/getgooglesheet/:code', async(req: any, res: any, next: any) => {
+    res.set('Access-Control-Allow-Origin', appurl)
+    const code = req.params.code;
+    const {tokens} = await functionsOauthClient.getToken(code);
+    functionsOauthClient.setCredentials({refresh_token: tokens.refresh_token, access_token: tokens.access_token});
+    // Now tokens contains an access_token and an optional refresh_token. Save them.
+    await admin.database().ref(DB_TOKEN_PATH).set(tokens);
+    const sheets = await google.sheets({
+        auth: functionsOauthClient,
+        version: 'v4'
+    });
+    console.log(sheets)
+    const data = await getBuffer(sheets);
+    if (!!data) {
+        console.log(data)
+        return res.status(200).send(data);        
     } else {
-        return res.status(200).send('nope')
+        return next(new Error('couldn\'t get sheet'))
     }
-  })
-  .catch((err: any) =>{
-    return res.status(400).send('couldnt connect');
-    // return reportError(err, {function: `/getgooglesheet/${code}`});
-  });
+    // )
+    // .then(async (result: any) => {
+    //     // let hr: string[] = [];
+    //     if (!!result) {
+    //         return result;//res.status(200).send(result)
+    //     } else {
+    //         return null;
+    //     }
+    // })
+    // .catch((err: any) =>{
+    //     return next(err)//res.status(400).send('couldnt connect');
+    //     // return reportError(err, {function: `/getgooglesheet/${code}`});
+    // });
+    // if (vals) {
+    //     return res.status(200).send(vals);
+    // } else {
+    //     return res.status(200).send('no data')
+    // }
 })
 
-googleOAuth.get('/', (req: any, res: any) => {
-  return res.redirect('/leftylendinglibrary/us-central1/authgoogleapi/')
-})
+// 
+// googleOAuth.get('/', (req: any, res: any) => {
+//   return res.redirect('/leftylendinglibrary/us-central1/authgoogleapi/')
+// })
 
 // function reportError(err: ErrnoException, context: any): Promise<ErrnoEvent|null> {
 //   // This is the name of the StackDriver log stream that will receive the log
@@ -181,46 +187,6 @@ googleOAuth.get('/', (req: any, res: any) => {
 //   });
 // }
 
-// // catch 404 and forward to error handler
-// googleOAuth.use(function (req: any, res: any, next: any) {
-//   const err = new Error('Not Found');
-//   next(err);
-// });
-// 
-// // error handlers
-// googleOAuth.use(function (err: any, req: any, res: any) {
-//   // const errMsg = new Error(err)
-//   return res.status(400).send('api not working');
-// });
-
-// // visit the URL for this Function to request tokens
-// exports.authgoogleapi = functions.https.onRequest((req: any, res: any) => {
-//   res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
-//   res.redirect(functionsOauthClient.generateAuthUrl({
-//     access_type: 'offline',
-//     scope: SCOPES,
-//     prompt: 'consent',
-//   }));
-// });
-// 
-// // setup for OauthCallback
-// const DB_TOKEN_PATH = '/api_tokens';
-// 
-// // after you grant access, you will be redirected to the URL for this Function
-// // this Function stores the tokens to your Firebase database
-// exports.oauthcallback = functions.https.onRequest(async (req: any, res: any) => {
-//   res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
-//   const code = req.query.code;
-//   try {
-//     const {tokens} = await functionsOauthClient.getToken(code);
-//     // Now tokens contains an access_token and an optional refresh_token. Save them.
-//     await admin.database().ref(DB_TOKEN_PATH).set(tokens);
-//     return res.status(200).send('App successfully configured with new Credentials. '
-//         + 'You can now close this page.');
-//   } catch (error) {
-//     return res.status(400).send(error);
-//   }
-// });
 
 // // trigger function to write to Sheet when new data comes in on CONFIG_DATA_PATH
 // exports.appendrecordtospreadsheet = functions.database.ref(`${CONFIG_DATA_PATH}/{ITEM}`).onCreate(
@@ -279,13 +245,18 @@ googleOAuth.get('/', (req: any, res: any) => {
 //   });
 //   res.send(`Wrote ${random1}, ${random2}, ${random3} to DB, trigger should now update Sheet.`);
 // });
+// catch 404 and forward to error handler
+googleOAuth.use(function (req: any, res: any, next: any) {
+  const err = new Error('Not Found');
+  next(err);
+});
 
-// const googleOAuthCaller = functions.https.onRequest((request: any, response: any) => {
-//   if (!request.path) {
-//     request.url = `/${request.url}`; // Prepend '/' to keep query params if any
-//   }
-//   return googleOAuth(request, response)
-// })
+// error handlers
+googleOAuth.use(function (err: any, req: any, res: any) {
+  // const errMsg = new Error(err)
+  return res.status(400).send('api not working');
+});
+
 const googleoauthcaller = functions.https.onRequest((request: any, response: any) => {
     corsHandler(request, response, () => {
         console.log(request)
@@ -293,65 +264,8 @@ const googleoauthcaller = functions.https.onRequest((request: any, response: any
     if (!request.path) {
       request.url = `/${request.url}`; // Prepend '/' to keep query params if any
     }
-
+    response.set('Access-Control-Allow-Origin', appurl);
     return googleOAuth(request, response);
 })
 
 exports.googleoauthcaller = googleoauthcaller;
-// googleOAuthCaller
-// export functions.https.onRequest(app)
-
-
-
-// // import { 
-// // 	// firebase, corsHandler(request, response, () => {});
-// // 	// admin, 
-// // 	functions, 
-// // 	// auth 
-// // } from '../../src/libs'; 
-// import * as functions from 'firebase-functions'
-// // import { authConfig } from '../../src/config';
-// // import * as firebase from 'firebase/app';
-// // import '@firebase/auth';
-// // import '@firebase/firestore';
-// // import '@firebase/functions';
-// // import '@firebase/admin';
-// // 
-// // import * as functions from 'firebase-functions';
-// import { 
-//   google
-//   // , sheets_v4 
-// } from 'googleapis';
-// 
-// // // Start writing Firebase Functions
-// // // https://firebase.google.com/docs/functions/typescript
-// //
-// export const getGoogleSheet = functions.https.onCall(async (req: any, res: any) => {
-// 	// const oauth2Client = await new google.auth.OAuth2(
-// 	//   process.env.REACT_APP_GOOGLE_OAUTH_CLIENTID,
-// 	//   process.env.REACT_APP_GOOGLE_OAUTH_SECRET,
-// 	//   process.env.REACT_APP_GOOGLE_CALLBACK_URL_DEV
-// 	// );
-// 	// google.options({
-// 	//   auth: auth
-// 	// })
-// 	const sheets = await google.sheets({
-// 	  version: 'v4'
-// 	});
-// 	console.log(sheets)
-// 	await sheets.spreadsheets.values
-// 	.get({
-// 	  spreadsheetId: process.env.SPREADSHEET_ID,//authConfig.spreadsheetId,
-// 	  range: "Books"
-// 	})
-// 	.then(async (result) => {
-// 	  // let hr: string[] = [];
-// 	  if (!!result) {
-// 	    console.log(result)
-// 	  }
-// 	})
-// 	.catch(err=>{
-// 		console.log(err)
-// 	});
-// 
-// })

@@ -188,16 +188,14 @@ export class AuthStore {
             firebaseUser.getIdToken().then(async(idToken)=> {
                 const payload = await JSON.parse(base64.decode(idToken.split('.')[1]));
                 this.isAdmin = payload['admin'] || false;
-                const appurl = 'https://us-central1-leftylendinglibrary.cloudfunctions.net/leftylendinglibrary/us-central1'
+                const appurl = process.env.REACT_APP_BUILD_ENV === 'development' ?
+                    'http://localhost:5002'
+                    : 'https://us-central1-leftylendinglibrary.cloudfunctions.net/leftylendinglibrary/us-central1'
                 if (!!this.isAdmin) {
                       await fetch(`${appurl}/authgoogleapi`)
-                      // this.httpsCallable('authgoogleapi')
-                      // callable.call('/authgoogleapi')
                       .then(async(res: any) => {
                           console.log(res);
-                          // const callable2 = await this.httpsCallable('googleoauthcaller');
                           await fetch(`${appurl}/getgooglesheet/${this.uiConfig.signInOptions[1].spreadsheetId}`).then(async (result: any)=> {
-                          // this.httpsCallable(`getgooglesheet/${this.uiConfig.signInOptions[1].spreadsheetId}`).then(async (result: any)=> {
                               console.log(result)
                               if (!!result && !!result.data) {
                                   const data = result.data;
