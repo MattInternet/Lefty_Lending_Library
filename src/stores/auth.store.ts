@@ -1,5 +1,7 @@
 import { observable, action, computed } from 'mobx';
 import fetch from 'node-fetch';
+// import { request } from 'gaxios';
+// import * as request from 'request-promise';
 import { 
   firebase, 
   auth, 
@@ -188,60 +190,84 @@ export class AuthStore {
             firebaseUser.getIdToken().then(async(idToken)=> {
                 const payload = await JSON.parse(base64.decode(idToken.split('.')[1]));
                 this.isAdmin = payload['admin'] || false;
-                const appurl = process.env.REACT_APP_BUILD_ENV === 'development' ?
+                const appurl = 
+                    // process.env.REACT_APP_BUILD_ENV === 'development' ?
                     'http://localhost:5002'
-                    : 'https://us-central1-leftylendinglibrary.cloudfunctions.net/leftylendinglibrary/us-central1'
+                    // : 
+                    // "https://leftylendinglibrary.web.app"
+                    // 'https://us-central1-leftylendinglibrary.cloudfunctions.net/leftylendinglibrary/us-central1'
                 if (!!this.isAdmin) {
-                      await fetch(`${appurl}/authgoogleapi`)
-                      .then(async(res: any) => {
-                          console.log(res);
-                          await fetch(`${appurl}/getgooglesheet/${this.uiConfig.signInOptions[1].spreadsheetId}`).then(async (result: any)=> {
-                              console.log(result)
-                              if (!!result && !!result.data) {
-                                  const data = result.data;
-                                  await data.values
-                                  .forEach(async (row: any, i: number) => {
-                                       const newRow: any = {};
-                                       const keys = [
-                                         'author',
-                                         'title',
-                                         'editor',
-                                         'edition',
-                                         'keywords',
-                                         'physical',
-                                         'pdf',
-                                         'url',
-                                         'copies',
-                                         'lender',
-                                         'borrower',
-                                         'checkout',
-                                         'return',
-                                         'underlining',
-                                         'notes',
-                                         'isbn',
-                                       ]
-                                       await row.forEach(function(c: any, j: number){
-                                          let d = c;
-                                          if (i > 2){
-                                            if (!c || c === 'undefined') {
-                                              d = null;
-                                              // nullcount++;
-                                            }
-                                            newRow[keys[j]] = d;
-                                          }
-                                        });
-                                        if (i > 2){
-                                          console.log(newRow)
-                                          // await this.handleAddBook(newRow);
-                                        } 
-                                  });
-                              }
+                    const authGoogleUrl = `${appurl}/authgoogleapi`;
+                    const googleSheetUrl = `${appurl}/getgooglesheet/${encodeURIComponent(this.uiConfig.signInOptions[1].spreadsheetId)}`;
+                      await /*request*/fetch(authGoogleUrl
+                          // {
+                          // url: authGoogleUrl
+                          // }
+                      , {mode:'no-cors'})
+                      .then(async(res: any) => res
 
-                          })
-                          .catch(err => console.log(err))
+                      )
+                      .catch(err => console.log(err));
+                      // console.log(res);
+                      const sh: any = await /*request*/fetch(googleSheetUrl
+                          // {
+                          // url: googleSheetUrl
+                          // }
+                      , {mode:'no-cors'})
+                      .then(async(result: any)=> await result
+                      // {
+                      //     console.log(result)
 
-                      })
+                      // 
+                      // }
+                      )
+                      .then((result: any) => result)
                       .catch(err => console.log(err))
+                      if (!!sh) {
+                          const data = await JSON.stringify(sh);
+                          console.log(data)
+                          // await data.values
+                          // .forEach(async (row: any, i: number) => {
+                          //      const newRow: any = {};
+                          //      const keys = [
+                          //        'author',
+                          //        'title',
+                          //        'editor',
+                          //        'edition',
+                          //        'keywords',
+                          //        'physical',
+                          //        'pdf',
+                          //        'url',
+                          //        'copies',
+                          //        'lender',
+                          //        'borrower',
+                          //        'checkout',
+                          //        'return',
+                          //        'underlining',
+                          //        'notes',
+                          //        'isbn',
+                          //      ]
+                          //      await row.forEach(function(c: any, j: number){
+                          //         let d = c;
+                          //         if (i > 2){
+                          //           if (!c || c === 'undefined') {
+                          //             d = null;
+                          //             // nullcount++;
+                          //           }
+                          //           newRow[keys[j]] = d;
+                          //         }
+                          //       });
+                          //       if (i > 2){
+                          //         console.log(newRow)
+                          //         // await this.handleAddBook(newRow);
+                          //       } 
+                          // });
+                      } else {
+                          console.log('couldnt get data')
+                      }
+                      // {
+                      // 
+                      // }
                 }
             });
         }

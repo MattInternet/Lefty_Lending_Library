@@ -18,6 +18,7 @@
 // Sample trigger function that copies new Firebase data to a Google Sheet
 // const Logging: any = require('@google-cloud/logging');
 import * as cors from 'cors';
+// import { promisify } from 'util';
 const corsHandler = cors({origin: true});
 const express = require('express');
 // const cors = require('cors')({origin:true});
@@ -51,23 +52,28 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets',"email","openid",
 const functionsOauthClient = new OAuth2Client(CONFIG_CLIENT_ID, CONFIG_CLIENT_SECRET,
   FUNCTIONS_REDIRECT);
 
-const appurl = process.env.REACT_APP_BUILD_ENV === 'development' ?
-  'http://localhost:5002'
-  : 'https://us-central1-leftylendinglibrary.cloudfunctions.net'
+const appurl = 
+  //   process.env.NODE_ENV === 'development' ?
+    'http://localhost:5002'
+  // // : 
+  //   'https://leftylendinglibrary.web.app';
 const googleOAuth = express();
 
-googleOAuth.use(cors({origin: true}));
-
 // Automatically allow cross-origin requests
-googleOAuth.use(cors({ origin: true }));
+googleOAuth.use(cors({ 
+    origin: appurl,
+    // credentials: true
+}));
 
 googleOAuth.use((req: any, res: any) => {
-    res.set('Access-Control-Allow-Origin', appurl)
+    // res.set('Access-Control-Allow-Headers', 'Cache-Control, Origin, X-Requested-With, Content-Type, Accept');
+    // res.set('Access-Control-Allow-Credentials', true);
+    // res.set('Access-Control-Allow-Origin', appurl)
 });
 // build multiple CRUD interfaces:
 googleOAuth.get('/authgoogleapi', (req: any, res: any) => {
     res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
-    res.set('Access-Control-Allow-Origin', appurl)
+    // res.set('Access-Control-Allow-Origin', appurl)
   res.redirect(functionsOauthClient.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES,
@@ -76,54 +82,102 @@ googleOAuth.get('/authgoogleapi', (req: any, res: any) => {
 });
 googleOAuth.get('/oauthcallback', async (req: any, res: any) => {
     res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
-    res.set('Access-Control-Allow-Origin', appurl)
+    // res.set('Access-Control-Allow-Origin', appurl)
     const code = req.query.code;
     return res.redirect(`/getgooglesheet/${code}`)
 });
 
-function getBuffer(sheets: any) {
-    return new Promise((resolve, reject) => {
-        sheets.spreadsheets.values
+function getData() {
+    return new Promise(async(resolve, reject) => {
+        const sheets = google.sheets('v4'
+            // {
+            // auth: functionsOauthClient,
+            // version: 'v4'
+            // }
+        );
+        // const getSheets = promisify(api.spreadsheets.get.bind(api.spreadsheets))
+        // getSheets({spreadsheetId: CONFIG_SHEET_ID})
+        // This just prints out all Worksheet names as an example
+        // .then((
+        //     result: any
+        //     // { data: { sheets } }
+        // ) => {
+        //   res.status(200).send(result);
+        // })
+        // .catch((err: any) => {
+        //   res.status(500).send({ err });
+        // })
+        // console.log(sheetsApi)
+        const responses:any = await sheets.spreadsheets.values
         .get({
             spreadsheetId: CONFIG_SHEET_ID,//authConfig.spreadsheetId,
-            range: "Books"
-        }, async (err: any, result: any) => {
-            if (err) {
-                reject()
-            }
-            let buf: any = [];
-            result.on("data", function(e: any) {
-              buf.push(e);
-            });
-            result.on("end", function() {
-              const buffer = Buffer.concat(buf);
-              console.log(buffer);
-              // fs.writeFile("filename", buffer, err => console.log(err)); // For testing
-              resolve(buffer)
-              // return res.status(200).send(result)
-            });
-        })
+            range: "Books",
+            auth: functionsOauthClient,
+        }
+        ).then((response: any) => response.body.json()
+        // {
+        //     // if (err) {
+        //     //     console.log(err)
+        //     // }
+        // }
+        // , {
+        //     responseType: 'json'
+        // }
+        )
+        .catch((err:any)=>reject(err));
+        resolve(responses);
+        // , async (err: any, result: any) => {
+        //     if (err) {
+        //         reject()
+        //     }
+        //     let buf: any = [];
+        //     result.on("data", function(e: any) {
+        //       buf.push(e);
+        //     });
+        //     result.on("end", function() {
+        //       const buffer = Buffer.concat(buf);
+        //       console.log(buffer.toString());
+        //       // fs.writeFile("filename", buffer, err => console.log(err)); // For testing
+        //       const ret = buffer.toString();
+        //       resolve(ret)
+        //       // return res.status(200).send(result)
+        //     });
+        // })
     })
 }
 googleOAuth.get('/getgooglesheet/:code', async(req: any, res: any, next: any) => {
-    res.set('Access-Control-Allow-Origin', appurl)
+    // res.set('Access-Control-Allow-Origin', appurl)
     const code = req.params.code;
     const {tokens} = await functionsOauthClient.getToken(code);
     functionsOauthClient.setCredentials({refresh_token: tokens.refresh_token, access_token: tokens.access_token});
     // Now tokens contains an access_token and an optional refresh_token. Save them.
     await admin.database().ref(DB_TOKEN_PATH).set(tokens);
-    const sheets = await google.sheets({
-        auth: functionsOauthClient,
-        version: 'v4'
-    });
-    console.log(sheets)
-    const data = await getBuffer(sheets);
-    if (!!data) {
-        console.log(data)
-        return res.status(200).send(data);        
-    } else {
-        return next(new Error('couldn\'t get sheet'))
-    }
+    const data = await getData().then((responses: any) => responses
+    // {
+    //     // return res.status(200).send(responses);
+    // }
+    )
+    .catch((err:any)=>next(err));
+    return res.status(200).send(data);
+    // const data: any = await sheets.then((response: any)=>response
+    // // {
+    // //     console.log(response)
+    // //     const json = await response.body.json();
+    // //     return json;
+    // // }
+    // )
+    // .then((result: any)=>result)
+    // .catch((err: any) => next(err));
+    // // resolve(sht);
+    // if (!data) {
+    //     return next(new Error('couldn\'t get sheet'))
+    // } else {
+    //     // console.log(data)
+    //     // console.log(data.json());
+    //     const ret: any = await data.json();
+    //     // .json().then((body: any)=>body);
+    //     return res.status(200).send(ret);        
+    // }
     // )
     // .then(async (result: any) => {
     //     // let hr: string[] = [];
@@ -264,7 +318,7 @@ const googleoauthcaller = functions.https.onRequest((request: any, response: any
     if (!request.path) {
       request.url = `/${request.url}`; // Prepend '/' to keep query params if any
     }
-    response.set('Access-Control-Allow-Origin', appurl);
+    // response.set('Access-Control-Allow-Origin', appurl);
     return googleOAuth(request, response);
 })
 
