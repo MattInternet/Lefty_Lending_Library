@@ -41,3 +41,6 @@ firestore-debug.log
 ./firestore-debug.log
 firebase-debug.log
 ./firebase-debug.log
+
+src/__tests__/__nock-fixtures__
+src/__tests__/__snapshots__

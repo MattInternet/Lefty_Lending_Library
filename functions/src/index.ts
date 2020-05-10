@@ -18,7 +18,7 @@
 // Sample trigger function that copies new Firebase data to a Google Sheet
 // const Logging: any = require('@google-cloud/logging');
 import * as cors from 'cors';
-// import { promisify } from 'util';
+import { promisify } from 'util';
 const corsHandler = cors({origin: true});
 const express = require('express');
 // const cors = require('cors')({origin:true});
@@ -48,13 +48,21 @@ const CONFIG_SHEET_ID = functions.config().googleapi.sheet_id;
 const FUNCTIONS_REDIRECT = `https://${process.env.GCLOUD_PROJECT}.firebaseapp.com/oauthcallback`;
 
 // setup for authGoogleAPI
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets',"email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"];
+const SCOPES = [
+  'https://www.googleapis.com/auth/spreadsheets',"email","openid",
+  "https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"
+];
 const functionsOauthClient = new OAuth2Client(CONFIG_CLIENT_ID, CONFIG_CLIENT_SECRET,
   FUNCTIONS_REDIRECT);
 
 const appurl = 
-  //   process.env.NODE_ENV === 'development' ?
-    'http://localhost:5002'
+  process.env.REACT_APP_TEST_ENV ? 
+  'https://leftylendinglibrary-test.web.app' : 
+  (process.env.REACT_APP_BUILD_ENV === 'development' ? 
+  'http://localhost:5000' : 
+   'https://leftylendinglibrary.web.app');
+  // 'http://localhost:5000'
+  // 'http://localhost:5000'
   // // : 
   //   'https://leftylendinglibrary.web.app';
 const googleOAuth = express();
@@ -69,6 +77,7 @@ googleOAuth.use((req: any, res: any) => {
     // res.set('Access-Control-Allow-Headers', 'Cache-Control, Origin, X-Requested-With, Content-Type, Accept');
     // res.set('Access-Control-Allow-Credentials', true);
     // res.set('Access-Control-Allow-Origin', appurl)
+    res.set('Access-Control-Allow-Methods', 'GET, POST')
 });
 // build multiple CRUD interfaces:
 googleOAuth.get('/authgoogleapi', (req: any, res: any) => {
@@ -84,20 +93,31 @@ googleOAuth.get('/oauthcallback', async (req: any, res: any) => {
     res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
     // res.set('Access-Control-Allow-Origin', appurl)
     const code = req.query.code;
-    return res.redirect(`/getgooglesheet/${code}`)
+    return res.status(200).send(code)
+    //res.redirect(`/getgooglesheet/${code}`)
 });
 
 function getData() {
     return new Promise(async(resolve, reject) => {
-        const sheets = google.sheets('v4'
-            // {
-            // auth: functionsOauthClient,
-            // version: 'v4'
-            // }
+        const sheets: any = google.sheets(
+            // 'v4'
+            {
+            auth: functionsOauthClient,
+            version: 'v4'
+            }
         );
-        // const getSheets = promisify(api.spreadsheets.get.bind(api.spreadsheets))
-        // getSheets({spreadsheetId: CONFIG_SHEET_ID})
-        // This just prints out all Worksheet names as an example
+        // const getSheets = promisify(sheets.spreadsheets.get.bind(sheets.spreadsheets))
+        // getSheets({
+        //   spreadsheetId: CONFIG_SHEET_ID,
+        //   range: "Books",
+        //   auth: functionsOauthClient,
+        // })
+        // // This just prints out all Worksheet names as an example
+        // .then((data: any) => resolve(data))
+        // .catch((err: any) => {
+        //   reject(err);
+        // })
+        
         // .then((
         //     result: any
         //     // { data: { sheets } }
@@ -108,24 +128,33 @@ function getData() {
         //   res.status(500).send({ err });
         // })
         // console.log(sheetsApi)
-        const responses:any = await sheets.spreadsheets.values
+        
+        sheets.spreadsheets.values
         .get({
             spreadsheetId: CONFIG_SHEET_ID,//authConfig.spreadsheetId,
             range: "Books",
             auth: functionsOauthClient,
-        }
-        ).then((response: any) => response.body.json()
-        // {
-        //     // if (err) {
-        //     //     console.log(err)
-        //     // }
-        // }
-        // , {
-        //     responseType: 'json'
-        // }
-        )
-        .catch((err:any)=>reject(err));
-        resolve(responses);
+        }, async (err: any, result: any) => {
+            if (err) {
+                reject(err)
+            }
+            // const rows: any = await result.data.values;
+            resolve(result);
+        })
+        
+        // .catch((err: any)=>console.log(err))
+        // ).then((response: any) => response.body.json()
+        // // {
+        // //     // if (err) {
+        // //     //     console.log(err)
+        // //     // }
+        // // }
+        // // , {
+        // //     responseType: 'json'
+        // // }
+        // )
+        // .catch((err:any)=>reject(err));
+        
         // , async (err: any, result: any) => {
         //     if (err) {
         //         reject()
@@ -145,14 +174,22 @@ function getData() {
         // })
     })
 }
+
+// googleAuth.post('/getgooglesheet', async(req: any, res: any) => {
+// 
+// })
+
 googleOAuth.get('/getgooglesheet/:code', async(req: any, res: any, next: any) => {
     // res.set('Access-Control-Allow-Origin', appurl)
-    const code = req.params.code;
+    const code: string = req.params.code;
     const {tokens} = await functionsOauthClient.getToken(code);
     functionsOauthClient.setCredentials({refresh_token: tokens.refresh_token, access_token: tokens.access_token});
     // Now tokens contains an access_token and an optional refresh_token. Save them.
     await admin.database().ref(DB_TOKEN_PATH).set(tokens);
-    const data = await getData().then((responses: any) => responses
+    google.options({
+        auth: functionsOauthClient
+    })
+    const data: any = await getData().then((responses: any) => responses
     // {
     //     // return res.status(200).send(responses);
     // }
