@@ -91,11 +91,6 @@ export class AuthStore {
                 signInSuccessWithAuthResult: () => false,
             },
         };
-        // this.googleAuthConfig = {
-        //     apiKey: authConfig.apiKey,
-        //     clientId: authConfig.clientId,
-        //     scopes: authConfig.scopes
-        // }
         auth.onAuthStateChanged(this.onAuthChanged);
     }
 
@@ -179,141 +174,55 @@ export class AuthStore {
         }
     }
     
-    // private httpsCallable = async (type: string) => {
-    //   const callable = await functions.httpsCallable(type);
-    //   return callable;
-    // } 
-    
-    
     private determineAdminStatus = async (firebaseUser: firebase.User | null) => {
         if(firebaseUser){
+          if (!!this.isAdmin) {
             firebaseUser.getIdToken().then(async(idToken)=> {
                 const payload = await JSON.parse(base64.decode(idToken.split('.')[1]));
                 this.isAdmin = payload['admin'] || false;
                 
-                const appurl = 
+                const appurl: string = 
                 process.env.REACT_APP_TEST_ENV ? 
                 'https://us-central1-leftylendinglibrary-test.cloudfunctions.net' : 
                 (process.env.REACT_APP_BUILD_ENV === 'development' ? 
-                'http://localhost:5000' : 
-                 'https://us-central1-leftylendinglibrary.cloudfunctions.net');
-                    // process.env.REACT_APP_BUILD_ENV === 'development' ?
-                    // 'http://localhost:5000'
-                    // 'http://localhost:5002/leftylendinglibrary/us-central1'
-                    // : 
-                    // "https://leftylendinglibrary.web.app"
-                    // 'https://us-central1-leftylendinglibrary.cloudfunctions.net/leftylendinglibrary/us-central1'
+                'http://localhost:5001' : 
+                'https://us-central1-leftylendinglibrary.cloudfunctions.net');
                 if (!!this.isAdmin) {
-                    const authGoogleUrl = `${appurl}/authgoogleapi`;
-                    // const googleSheetUrl = `${appurl}/getgooglesheet/${encodeURIComponent(this.uiConfig.signInOptions[1].spreadsheetId)}`;
-                    const response: any =  await fetch(authGoogleUrl, {mode:'no-cors'});
-                    // console.log(response)
-                    const reader: any = response.body.getReader();
-                    let charsReceived: number = 0;
-                    
-                    // read() returns a promise that resolves
-                    // when a value has been received
-                    const list2 = document.createElement('ul');
-                    let result: string = '';
-                    await reader.read().then(function processText({ done, value }) {
-                        // Result objects contain two properties:
-                        // done  - true if the stream has already given you all its data.
-                        // value - some data. Always undefined when done is true.
-                        if (done) {
-                          console.log("Stream complete");
-                    
-                          // para.textContent = value;
-                          return;
-                        }
-                    
-                        // value for fetch streams is a Uint8Array
-                        charsReceived += value.length;
-                        const chunk = value;
-                        let listItem = document.createElement('li');
-                        listItem.textContent = 'Received ' + charsReceived + ' characters so far. Current chunk = ' + chunk;
-                        list2.appendChild(listItem);
-                    
-                        result += chunk;
-                    
-                        // Read some more, and call this function again
-                        reader.read().then(processText);
-                        return 
-                            // console.log(response.body)
-                            // const body: any = await response.json();
-                            // if (response.status !== 200) throw Error(body.message);
-                            // console.log(body);
-                              // .then(async(dat: any) => {
-                              //     const data = await JSON.stringify(dat);
-                              //     console.log(data)
-                              // }
-                              // 
-                              // )
-                              // .catch(err => console.log(err));
-                              // console.log(res);
-                              // const sh: any = await /*request*/fetch(googleSheetUrl
-                              //     // {
-                              //     // url: googleSheetUrl
-                              //     // }
-                              // , {method: 'POST',mode:'no-cors'})
-                              // .then(async(result: any)=> await result
-                              // // {
-                              // //     console.log(result)
-                              // 
-                              // // 
-                              // // }
-                              // )
-                              // .then((result: any) => result)
-                              // .catch(err => console.log(err))
-                              // if (!!sh) {
-                    
-                              // await data.values
-                              // .forEach(async (row: any, i: number) => {
-                              //      const newRow: any = {};
-                              //      const keys = [
-                              //        'author',
-                              //        'title',
-                              //        'editor',
-                              //        'edition',
-                              //        'keywords',
-                              //        'physical',
-                              //        'pdf',
-                              //        'url',
-                              //        'copies',
-                              //        'lender',
-                              //        'borrower',
-                              //        'checkout',
-                              //        'return',
-                              //        'underlining',
-                              //        'notes',
-                              //        'isbn',
-                              //      ]
-                              //      await row.forEach(function(c: any, j: number){
-                              //         let d = c;
-                              //         if (i > 2){
-                              //           if (!c || c === 'undefined') {
-                              //             d = null;
-                              //             // nullcount++;
-                              //           }
-                              //           newRow[keys[j]] = d;
-                              //         }
-                              //       });
-                              //       if (i > 2){
-                              //         console.log(newRow)
-                              //         // await this.handleAddBook(newRow);
-                              //       } 
-                      });
-                      console.log(result)
-                    //   console.log(result.toString())
-                      // } else {
-                      //     console.log('couldnt get data')
-                      // }
-                      // {
-                      // 
-                      // }
-                      this.isAdmin = true;
-
+                  const authGoogleUrl = `${appurl}/authgoogleapi`;
+                  // const googleSheetUrl = `${appurl}/getgooglesheet/${encodeURIComponent(this.uiConfig.signInOptions[1].spreadsheetId)}`;
+                  const response: any =  await fetch(authGoogleUrl, {mode:'no-cors'});
+                  // console.log(response)
+                  const reader: any = response.body.getReader();
+                  let charsReceived: number = 0;
+                  
+                  // read() returns a promise that resolves
+                  // when a value has been received
+                  const list2 = document.createElement('ul');
+                  let result: string = '';
+                  await reader.read().then(function processText({ done, value }) {
+                      // Result objects contain two properties:
+                      // done  - true if the stream has already given you all its data.
+                      // value - some data. Always undefined when done is true.
+                      if (done) {
+                        console.log("Stream complete");
+                        return;
+                      }
+                      // value for fetch streams is a Uint8Array
+                      charsReceived += value.length;
+                      const chunk = value;
+                      let listItem = document.createElement('li');
+                      listItem.textContent = 'Received ' + charsReceived + ' characters so far. Current chunk = ' + chunk;
+                      list2.appendChild(listItem);
+                      result += chunk;
+                      // Read some more, and call this function again
+                      reader.read().then(processText);
+                      return 
+                  });
+                  console.log(result.toString())
+                  this.isAdmin = true;
                 }
             });
+          }
         }
         this.isAdmin = false;
         

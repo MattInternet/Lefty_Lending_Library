@@ -18,8 +18,7 @@
 // Sample trigger function that copies new Firebase data to a Google Sheet
 // const Logging: any = require('@google-cloud/logging');
 import * as cors from 'cors';
-import { promisify } from 'util';
-const corsHandler = cors({origin: true});
+// import { promisify } from 'util';
 const express = require('express');
 // const cors = require('cors')({origin:true});
 const functions = require('firebase-functions');
@@ -27,9 +26,6 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 const {OAuth2Client} = require('google-auth-library');
 const {google} = require('googleapis');
-
-// const logging = Logging();
-// const { googleOAuth } = require('./app');
 
 const DB_TOKEN_PATH = '/api_tokens';
 // TODO: Use firebase functions:config:set to configure your googleapi object:
@@ -59,39 +55,28 @@ const appurl =
   process.env.REACT_APP_TEST_ENV ? 
   'https://leftylendinglibrary-test.web.app' : 
   (process.env.REACT_APP_BUILD_ENV === 'development' ? 
-  'http://localhost:5000' : 
-   'https://leftylendinglibrary.web.app');
-  // 'http://localhost:5000'
-  // 'http://localhost:5000'
-  // // : 
-  //   'https://leftylendinglibrary.web.app';
+  'http://localhost:5002' : 
+  'https://leftylendinglibrary.web.app');
 const googleOAuth = express();
+const corsHandler = cors({origin: appurl});
 
 // Automatically allow cross-origin requests
-googleOAuth.use(cors({ 
-    origin: appurl,
-    // credentials: true
-}));
+googleOAuth.use(corsHandler);
 
 googleOAuth.use((req: any, res: any) => {
-    // res.set('Access-Control-Allow-Headers', 'Cache-Control, Origin, X-Requested-With, Content-Type, Accept');
-    // res.set('Access-Control-Allow-Credentials', true);
-    // res.set('Access-Control-Allow-Origin', appurl)
     res.set('Access-Control-Allow-Methods', 'GET, POST')
 });
-// build multiple CRUD interfaces:
+
 googleOAuth.get('/authgoogleapi', (req: any, res: any) => {
     res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
-    // res.set('Access-Control-Allow-Origin', appurl)
-  res.redirect(functionsOauthClient.generateAuthUrl({
-    access_type: 'offline',
-    scope: SCOPES,
-    prompt: 'consent',
-  }));
+    res.redirect(functionsOauthClient.generateAuthUrl({
+        access_type: 'offline',
+        scope: SCOPES,
+        prompt: 'consent',
+    }));
 });
 googleOAuth.get('/oauthcallback', async (req: any, res: any) => {
     res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
-    // res.set('Access-Control-Allow-Origin', appurl)
     const code = req.query.code;
     return res.status(200).send(code)
     //res.redirect(`/getgooglesheet/${code}`)
@@ -106,81 +91,74 @@ function getData() {
             version: 'v4'
             }
         );
-        // const getSheets = promisify(sheets.spreadsheets.get.bind(sheets.spreadsheets))
-        // getSheets({
-        //   spreadsheetId: CONFIG_SHEET_ID,
-        //   range: "Books",
-        //   auth: functionsOauthClient,
-        // })
-        // // This just prints out all Worksheet names as an example
-        // .then((data: any) => resolve(data))
-        // .catch((err: any) => {
-        //   reject(err);
-        // })
-        
-        // .then((
-        //     result: any
-        //     // { data: { sheets } }
-        // ) => {
-        //   res.status(200).send(result);
-        // })
-        // .catch((err: any) => {
-        //   res.status(500).send({ err });
-        // })
-        // console.log(sheetsApi)
-        
         sheets.spreadsheets.values
         .get({
-            spreadsheetId: CONFIG_SHEET_ID,//authConfig.spreadsheetId,
-            range: "Books",
-            auth: functionsOauthClient,
-        }, async (err: any, result: any) => {
-            if (err) {
-                reject(err)
-            }
-            // const rows: any = await result.data.values;
-            resolve(result);
+          spreadsheetId: CONFIG_SHEET_ID,//authConfig.spreadsheetId,
+          range: "Books"
         })
-        
-        // .catch((err: any)=>console.log(err))
-        // ).then((response: any) => response.body.json()
-        // // {
-        // //     // if (err) {
-        // //     //     console.log(err)
-        // //     // }
-        // // }
-        // // , {
-        // //     responseType: 'json'
-        // // }
-        // )
-        // .catch((err:any)=>reject(err));
-        
-        // , async (err: any, result: any) => {
-        //     if (err) {
-        //         reject()
-        //     }
-        //     let buf: any = [];
-        //     result.on("data", function(e: any) {
-        //       buf.push(e);
-        //     });
-        //     result.on("end", function() {
-        //       const buffer = Buffer.concat(buf);
-        //       console.log(buffer.toString());
-        //       // fs.writeFile("filename", buffer, err => console.log(err)); // For testing
-        //       const ret = buffer.toString();
-        //       resolve(ret)
-        //       // return res.status(200).send(result)
-        //     });
-        // })
+        .then(async (result: any) => {
+          // let hr: string[] = [];
+          if (!!result) {
+              await result.data.values
+              .map(async (row: any, i: number) => {
+                   const newRow: any = {};
+                   const keys = [
+                     'author',
+                     'title',
+                     'editor',
+                     'edition',
+                     'keywords',
+                     'physical',
+                     'pdf',
+                     'url',
+                     'copies',
+                     'lender',
+                     'borrower',
+                     'checkout',
+                     'return',
+                     'underlining',
+                     'notes',
+                     'isbn',
+                   ]
+                   await row.forEach(function(c: any, j: number){
+                      let d = c;
+                      if (i > 2){
+                        if (!c || c === 'undefined') {
+                          d = null;
+                          // nullcount++;
+                        }
+                        newRow[keys[j]] = d;
+                      }
+                    });
+                    if (i > 2){
+                      console.log(newRow)
+                      // await this.handleAddBook(newRow);
+                    } 
+              });
+              resolve(result)
+              // return res.status(200).send(result)
+          }
+        })
+        .catch((err: any) =>{
+          reject(err)
+          // return res.status(400).send('couldnt connect');
+        });
+        // try {
+        //   const response = (await sheets.spreadsheets.values
+        //   .get({
+        //       spreadsheetId: CONFIG_SHEET_ID,//authConfig.spreadsheetId,
+        //       range: "Books",
+        //       auth: functionsOauthClient,
+        //   })).data;
+        //   // console.log(JSON.stringify(response, null, 2));
+        //   resolve(JSON.stringify(response))
+        // } catch(err) {
+        //   reject(err)
+        // }
     })
 }
 
-// googleAuth.post('/getgooglesheet', async(req: any, res: any) => {
-// 
-// })
-
 googleOAuth.get('/getgooglesheet/:code', async(req: any, res: any, next: any) => {
-    // res.set('Access-Control-Allow-Origin', appurl)
     const code: string = req.params.code;
     const {tokens} = await functionsOauthClient.getToken(code);
     functionsOauthClient.setCredentials({refresh_token: tokens.refresh_token, access_token: tokens.access_token});
@@ -189,95 +167,10 @@ googleOAuth.get('/getgooglesheet/:code', async(req: any, res: any, next: any) =>
     google.options({
         auth: functionsOauthClient
     })
-    const data: any = await getData().then((responses: any) => responses
-    // {
-    //     // return res.status(200).send(responses);
-    // }
-    )
+    const data: any = await getData().then((responses: any) => responses)
     .catch((err:any)=>next(err));
     return res.status(200).send(data);
-    // const data: any = await sheets.then((response: any)=>response
-    // // {
-    // //     console.log(response)
-    // //     const json = await response.body.json();
-    // //     return json;
-    // // }
-    // )
-    // .then((result: any)=>result)
-    // .catch((err: any) => next(err));
-    // // resolve(sht);
-    // if (!data) {
-    //     return next(new Error('couldn\'t get sheet'))
-    // } else {
-    //     // console.log(data)
-    //     // console.log(data.json());
-    //     const ret: any = await data.json();
-    //     // .json().then((body: any)=>body);
-    //     return res.status(200).send(ret);        
-    // }
-    // )
-    // .then(async (result: any) => {
-    //     // let hr: string[] = [];
-    //     if (!!result) {
-    //         return result;//res.status(200).send(result)
-    //     } else {
-    //         return null;
-    //     }
-    // })
-    // .catch((err: any) =>{
-    //     return next(err)//res.status(400).send('couldnt connect');
-    //     // return reportError(err, {function: `/getgooglesheet/${code}`});
-    // });
-    // if (vals) {
-    //     return res.status(200).send(vals);
-    // } else {
-    //     return res.status(200).send('no data')
-    // }
 })
-
-// 
-// googleOAuth.get('/', (req: any, res: any) => {
-//   return res.redirect('/leftylendinglibrary/us-central1/authgoogleapi/')
-// })
-
-// function reportError(err: ErrnoException, context: any): Promise<ErrnoEvent|null> {
-//   // This is the name of the StackDriver log stream that will receive the log
-//   // entry. This name can be any valid log stream name, but must contain "err"
-//   // in order for the error to be picked up by StackDriver Error Reporting.
-//   const logName = 'errors';
-//   const log = logging.log(logName);
-// 
-//   // https://cloud.google.com/logging/docs/api/ref_v2beta1/rest/v2beta1/MonitoredResource
-//   const metadata: Metadata = {
-//     resource: {
-//       type: 'cloud_function',
-//       labels: {function_name: process.env.FUNCTION_NAME},
-//     },
-//   };
-// 
-//   // https://cloud.google.com/error-reporting/reference/rest/v1beta1/ErrorEvent
-//   const errorEvent: ErrnoEvent = {
-//     message: err.stack,
-//     serviceContext: {
-//       service: process.env.FUNCTION_NAME,
-//       resourceType: 'cloud_function',
-//     },
-//     context: context,
-//   };
-// 
-//   // Write the error log entry
-//   return new Promise((resolve, reject) => {
-//     log.write(log.entry(metadata, errorEvent), (error: any) => {
-//       if (error) {
-//             reject(error);
-//             return    
-//       }
-//       resolve();
-//       return 
-//     });
-//   });
-// }
-
 
 // // trigger function to write to Sheet when new data comes in on CONFIG_DATA_PATH
 // exports.appendrecordtospreadsheet = functions.database.ref(`${CONFIG_DATA_PATH}/{ITEM}`).onCreate(
