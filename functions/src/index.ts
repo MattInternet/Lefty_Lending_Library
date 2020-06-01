@@ -64,11 +64,12 @@ const corsHandler = cors({origin: appurl});
 googleOAuth.use(corsHandler);
 
 googleOAuth.use((req: any, res: any) => {
+    res.set('Cache-Control', 'public, max-age=0, s-maxage=0');
     res.set('Access-Control-Allow-Methods', 'GET, POST')
 });
 
 googleOAuth.get('/authgoogleapi', (req: any, res: any) => {
-    res.set('Cache-Control', 'private, max-age=0, s-maxage=0');
+    res.set('Cache-Control', 'public, max-age=0, s-maxage=0');
     res.redirect(functionsOauthClient.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPES,
@@ -93,55 +94,19 @@ function getData() {
         );
         sheets.spreadsheets.values
         .get({
-          spreadsheetId: CONFIG_SHEET_ID,//authConfig.spreadsheetId,
-          range: "Books"
+            spreadsheetId: CONFIG_SHEET_ID,//authConfig.spreadsheetId,
+            range: "Books"
         })
         .then(async (result: any) => {
-          // let hr: string[] = [];
-          if (!!result) {
-              await result.data.values
-              .map(async (row: any, i: number) => {
-                   const newRow: any = {};
-                   const keys = [
-                     'author',
-                     'title',
-                     'editor',
-                     'edition',
-                     'keywords',
-                     'physical',
-                     'pdf',
-                     'url',
-                     'copies',
-                     'lender',
-                     'borrower',
-                     'checkout',
-                     'return',
-                     'underlining',
-                     'notes',
-                     'isbn',
-                   ]
-                   await row.forEach(function(c: any, j: number){
-                      let d = c;
-                      if (i > 2){
-                        if (!c || c === 'undefined') {
-                          d = null;
-                          // nullcount++;
-                        }
-                        newRow[keys[j]] = d;
-                      }
-                    });
-                    if (i > 2){
-                      console.log(newRow)
-                      // await this.handleAddBook(newRow);
-                    } 
-              });
-              resolve(result)
-              // return res.status(200).send(result)
-          }
+            // let hr: string[] = [];
+            if (!!result) {
+                resolve(result)
+                // return res.status(200).send(result)
+            }
         })
         .catch((err: any) =>{
-          reject(err)
-          // return res.status(400).send('couldnt connect');
+            reject(err)
+            // return res.status(400).send('couldnt connect');
         });
         // try {
         //   const response = (await sheets.spreadsheets.values

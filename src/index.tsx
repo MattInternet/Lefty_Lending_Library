@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { Router, withRouter } from 'react-router';
 import App from './component/app/';
 import './index.css';
-import registerServiceWorker from './registerServiceWorker';
+import unregister from './registerServiceWorker';
 
 import * as stores from 'stores';
 import { createBrowserHistory } from 'history';
@@ -25,4 +25,5 @@ ReactDOM.render(
   </Provider>,
   document.getElementById('root') as HTMLElement
 );
-registerServiceWorker();
+// registerServiceWorker();
+unregister();

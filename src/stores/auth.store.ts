@@ -178,7 +178,10 @@ export class AuthStore {
         if(firebaseUser){
           if (!!this.isAdmin) {
             firebaseUser.getIdToken().then(async(idToken)=> {
-                const payload = await JSON.parse(base64.decode(idToken.split('.')[1]));
+                const payload = 
+                // await JSON.parse(
+                base64.decode(idToken.split('.')[1])
+                // );
                 this.isAdmin = payload['admin'] || false;
                 
                 const appurl: string = 
@@ -189,17 +192,10 @@ export class AuthStore {
                 'https://us-central1-leftylendinglibrary.cloudfunctions.net');
                 if (!!this.isAdmin) {
                   const authGoogleUrl = `${appurl}/authgoogleapi`;
-                  // const googleSheetUrl = `${appurl}/getgooglesheet/${encodeURIComponent(this.uiConfig.signInOptions[1].spreadsheetId)}`;
                   const response: any =  await fetch(authGoogleUrl, {mode:'no-cors'});
-                  // console.log(response)
                   const reader: any = response.body.getReader();
-                  let charsReceived: number = 0;
-                  
-                  // read() returns a promise that resolves
-                  // when a value has been received
-                  const list2 = document.createElement('ul');
-                  let result: string = '';
-                  await reader.read().then(function processText({ done, value }) {
+                  let result: any = '';
+                  await reader.read().then(function processText(done: any, value: any) {
                       // Result objects contain two properties:
                       // done  - true if the stream has already given you all its data.
                       // value - some data. Always undefined when done is true.
@@ -208,17 +204,61 @@ export class AuthStore {
                         return;
                       }
                       // value for fetch streams is a Uint8Array
-                      charsReceived += value.length;
                       const chunk = value;
-                      let listItem = document.createElement('li');
-                      listItem.textContent = 'Received ' + charsReceived + ' characters so far. Current chunk = ' + chunk;
-                      list2.appendChild(listItem);
                       result += chunk;
                       // Read some more, and call this function again
                       reader.read().then(processText);
                       return 
                   });
-                  console.log(result.toString())
+                  // if (result !== '') {
+                    
+                    // await result.data.values
+                    // .map(async (row: any, i: number) => {
+                    //      const newRow: any = {};
+                    //      const keys: array = [
+                    //        'author',
+                    //        'title',
+                    //        'editor',
+                    //        'edition',
+                    //        'keywords',
+                    //        'physical',
+                    //        'pdf',
+                    //        'url',
+                    //        'copies',
+                    //        'lender',
+                    //        'borrower',
+                    //        'checkout',
+                    //        'return',
+                    //        'underlining',
+                    //        'notes',
+                    //        'isbn',
+                    //      ]
+                    //      await row.forEach(function(c: any, j: number){
+                    //         let d = c;
+                    //         if (i > 2){
+                    //           if (!c || c === 'undefined') {
+                    //             d = null;
+                    //             // nullcount++;
+                    //           }
+                    //           newRow[keys[j]] = d;
+                    //         }
+                    //       });
+                    //       if (i > 2){
+                    //         console.log(newRow)
+                    //         // await this.handleAddBook(newRow);
+                    //       } 
+                    // });
+
+                  // }
+                  // result = 
+                  // // JSON.stringify(
+                  //   Array.from(new Int32Array(result))
+                  // // );
+                  let utf8decoder:any = new TextDecoder('utf8');
+                  let u8arr:any = new Int8Array(result);
+                  
+                  console.log(utf8decoder.decode(u8arr))
+                  //console.log(result.toString())
                   this.isAdmin = true;
                 }
             });
